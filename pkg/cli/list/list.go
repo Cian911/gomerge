@@ -16,6 +16,9 @@ import (
 	"github.com/spf13/viper"
 )
 
+var org = ""
+var repo = ""
+
 func NewCommand() (c *cobra.Command) {
 	c = &cobra.Command{
 		Use:   "list",
@@ -24,7 +27,7 @@ func NewCommand() (c *cobra.Command) {
 			ctx := cmd.Context()
 			orgRepo := viper.GetString("repo")
 			token := viper.GetString("token")
-			org, repo := parseOrgRepo(orgRepo)
+			org, repo = parseOrgRepo(orgRepo)
 
 			ghClient := gitclient.Client(token, ctx)
 			pullRequests, _, err := ghClient.PullRequests.List(ctx, org, repo, nil)
@@ -43,17 +46,19 @@ func NewCommand() (c *cobra.Command) {
 					"PR",
 					"State",
 					"Title",
-					"User",
+					"Repository",
 					"Created",
 				},
 			)
+			table = printer.HeaderStyle(table)
 
 			prIds := []string{}
 
 			for _, pr := range pullRequests {
 				prIds = append(prIds, fmt.Sprintf("%d", *pr.Number))
 				data := formatTable(pr)
-				table.Append(data)
+				table = printer.SuccessStyle(table, data)
+				// table.Append(data)
 			}
 			table.Render()
 
@@ -75,6 +80,7 @@ func formatTable(pr *github.PullRequest) []string {
 		fmt.Sprintf("#%s", printer.FormatID(pr.Number)),
 		printer.FormatString(pr.State),
 		printer.FormatString(pr.Title),
+		fmt.Sprintf("%s/%s", org, repo),
 		printer.FormatTime(pr.CreatedAt),
 	}
 
@@ -83,6 +89,12 @@ func formatTable(pr *github.PullRequest) []string {
 
 func parseOrgRepo(repo string) (org, repository string) {
 	str := strings.Split(repo, "/")
+
+	if len(str) <= 1 {
+		log.Fatal("You must pass your repo name like so: organization/repository to continue.")
+		os.Exit(1)
+	}
+
 	org = str[0]
 	repository = str[1]
 
