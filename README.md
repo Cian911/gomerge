@@ -1,7 +1,7 @@
 ### go-merge
 
 #### Description
-The intention of this tool is to simplfy, and eventually automate the merging of github pull requests. This tool should be able to run on most systems.
+Gomerge is a tool to quickly merge several pull requests from your terminal. The intention of this tool is to simplfy, and eventually automate the merging of github pull requests. This tool should be able to run on most systems.
 
 #### Requirements
 
