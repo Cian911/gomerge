@@ -12,8 +12,8 @@ You must have created a github personal access token (PAT) to use this tool. For
 To install the compiled binary, you can go to the releases tab, and download the version most suitable to your environment. Otherwise, you can download the latest binary like so:
 
 ```bash
-wget wget https://github.com/Cian911/gomerge/releases/download/1.0.0/gomerge_1.0.0_linux_amd64.tar.gz
-sudo tar -xvf gomerge_1.0.0_linux_amd64.tar.gz -C /usr/local/bin/
+wget wget https://github.com/Cian911/gomerge/releases/download/1.1.0/gomerge_1.1.0_linux_amd64.tar.gz
+sudo tar -xvf gomerge_1.1.0_linux_amd64.tar.gz -C /usr/local/bin/
 sudo chmod +x /usr/local/bin/gomerge
 ```
 #### Usage
@@ -21,19 +21,20 @@ sudo chmod +x /usr/local/bin/gomerge
 Below denotes the available commands and flags on the `gomerge` tool.
 
 ```bash
-gomerge makes it simple to merge an open pull request from your terminal
+Gomerge makes it simple to merge an open pull request from your terminal.
 
 Usage:
   gomerge [command]
 
 Available Commands:
   help        Help about any command
-  list        List all open pull request for a repo.
+  list        List all open pull request for a repository you wish to merge.
 
 Flags:
-  -h, --help           help for gomerge
-  -r, --repo string    Pass name of repository as argument (organization/repo).
-  -t, --token string   Pass your github personal access token (PAT).
+  -c, --config string   Pass an optional config file as an argument with list of repositories.
+  -h, --help            help for gomerge
+  -r, --repo string     Pass name of repository as argument (organization/repo).
+  -t, --token string    Pass your github personal access token (PAT).
 
 Use "gomerge [command] --help" for more information about a command.
 ```
@@ -43,7 +44,7 @@ To get a list of open and active pull requests for a given repo, you can run the
 **N.B**: Please ensure to add your organization followed by the name of your repository. In most cases this will be your github username, but if referencing a repository that exists within an organization you have access to, be sure to substitute it for that E.G `google/example-repo`.
 
 ```bash
-gomerge list -r Cian911/go-merge  -t ${GITHUB_TOKEN}
+gomerge list -r Cian911/go-merge -t ${GITHUB_TOKEN}
 ```
 
 If there are any active and open pull requests for your given repository, you will see an output similar to below.
@@ -55,3 +56,26 @@ From here, follow the instructions to select which pull request you wish to merg
 ```bash
 PR #3: Pull Request successfully merged.
 ```
+
+##### Bulk Merging Pull Requests
+
+As of version `1.1.0` there is a new option available to pass a config.yaml as an arugment to the `gomerge` tool which will give the user the option to configure a list of repositories in order to more easily _bulk merge_ pull requests.
+
+You should first create a `config.yaml` file in the following format.
+
+```yaml
+organization: Cian911
+repositories:
+- pr-test
+- syncwave
+```
+
+You can then run the tool like so, passing the config file as a flag.
+
+```bash
+gomerge list -t $GITHUB_TOKEN -c config.yaml
+```
+
+You should see a list of active and open pull requets from the repositories you have defined in your configuration file.
+
+![gomerge Bulk Output Sample](https://imgur.com/zROhCYV.png)
