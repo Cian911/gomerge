@@ -14,12 +14,13 @@ func New() (c *cobra.Command) {
 
 	c.PersistentFlags().StringP("repo", "r", "", "Pass name of repository as argument (organization/repo).")
 	c.PersistentFlags().StringP("token", "t", "", "Pass your github personal access token (PAT).")
+	c.PersistentFlags().StringP("config", "c", "", "Pass an optional config file as an argument with list of repositories.")
 
-	c.MarkFlagRequired("repo")
 	c.MarkFlagRequired("token")
 
 	viper.BindPFlag("repo", c.PersistentFlags().Lookup("repo"))
 	viper.BindPFlag("token", c.PersistentFlags().Lookup("token"))
+	viper.BindPFlag("config", c.PersistentFlags().Lookup("config"))
 
 	c.AddCommand(list.NewCommand())
 
