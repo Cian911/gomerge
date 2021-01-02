@@ -9,7 +9,7 @@ import (
 func New() (c *cobra.Command) {
 	c = &cobra.Command{
 		Use:   "gomerge",
-		Short: "gomerge makes it simple to merge an open pull request from your terminal",
+		Short: "Gomerge makes it simple to merge an open pull request from your terminal.",
 	}
 
 	c.PersistentFlags().StringP("repo", "r", "", "Pass name of repository as argument (organization/repo).")
