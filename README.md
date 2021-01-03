@@ -7,7 +7,7 @@ Gomerge is a tool to quickly merge several pull requests from your terminal. The
 
 You must have created a github personal access token (PAT) to use this tool. For information on how to do so, you can follow the documentation https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token
 
-#### Install
+#### Install (MacOS & Linux)
 
 To install the compiled binary, you can go to the releases tab, and download the version most suitable to your environment. Otherwise, you can download the latest binary like so:
 
