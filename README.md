@@ -12,7 +12,7 @@ You must have created a github personal access token (PAT) to use this tool. For
 To install the compiled binary, you can go to the releases tab, and download the version most suitable to your environment. Otherwise, you can download the latest binary like so:
 
 ```bash
-wget wget https://github.com/Cian911/gomerge/releases/download/1.1.0/gomerge_1.1.0_linux_amd64.tar.gz
+wget https://github.com/Cian911/gomerge/releases/download/1.1.0/gomerge_1.1.0_linux_amd64.tar.gz
 sudo tar -xvf gomerge_1.1.0_linux_amd64.tar.gz -C /usr/local/bin/
 sudo chmod +x /usr/local/bin/gomerge
 ```
