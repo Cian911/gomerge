@@ -2,7 +2,7 @@
 ![GitHub Actions Status](https://github.com/Cian911/gomerge/workflows/Release/badge.svg)
 
 #### Description
-Gomerge is a tool to quickly merge several pull requests from your terminal. The intention of this tool is to simplfy, and eventually automate the merging of github pull requests. This tool should be able to run on most systems.
+Gomerge is a tool to quickly enable you to bulk merge Github pull requests from your terminal. The intention of this tool is to simplfy, and eventually automate the merging of github pull requests. This tool should be able to run on most systems.
 
 #### Requirements
 
