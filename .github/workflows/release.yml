@@ -24,4 +24,4 @@ jobs:
           args: release --rm-dist
           workdir: ./cmd/gomerge
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}

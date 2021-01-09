@@ -1,0 +1,44 @@
+before:
+  hooks:
+    - go mod download
+builds:
+-
+  main: cmd/gomerge/main.go
+archives:
+-
+  id: gomerge
+  replacements:
+    darwin: Darwin
+    linux: Linux
+    windows: Windows
+    386: i386
+    amd64: x86_64
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
+nfpms:
+-
+  replacements:
+    amd64: 64-bit
+    386: 32-bit
+    darwin: macOS
+    linux: linux
+  vendor: Cian911
+  formats:
+    - deb
+    - rpm
+brews:
+  - tap:
+      owner: Cian911
+      name: homebrew-gomerge
+    folder: Formula
+    homepage: https://github.com/Cian911/gomerge
+    description: |
+      Gomerge is a tool to quickly merge several pull requests from your terminal. The intention of this tool is to simplfy, and eventually automate the merging of github pull requests. This tool should be able to run on most systems.
