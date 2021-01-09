@@ -20,5 +20,5 @@ func Client(github_token string, ctx context.Context) (client *github.Client) {
 }
 
 func DefaultCommitMsg() string {
-	return "Merged by Gitmerge CLI."
+	return "Merged by gomerge CLI."
 }
