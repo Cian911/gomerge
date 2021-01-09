@@ -8,13 +8,23 @@ Gomerge is a tool to quickly merge several pull requests from your terminal. The
 
 You must have created a github personal access token (PAT) to use this tool. For information on how to do so, you can follow the documentation https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token
 
-#### Install (MacOS & Linux)
+#### Install 
 
-To install the compiled binary, you can go to the releases tab, and download the version most suitable to your environment. Otherwise, you can download the latest binary like so:
+To install the latest version via `homebrew`, please run the following.
 
 ```bash
-wget https://github.com/Cian911/gomerge/releases/download/1.1.0/gomerge_1.1.0_linux_amd64.tar.gz
-sudo tar -xvf gomerge_1.1.0_linux_amd64.tar.gz -C /usr/local/bin/
+brew tap Cian911/gomerge
+brew install gomerge
+
+// Check the binary is working as expected.
+gomerge -h
+```
+
+To install the compiled binary, you can go to the releases tab, and download the version most suitable to your environment. An example of such is below.
+
+```bash
+wget https://github.com/Cian911/gomerge/releases/download/1.1.1/gomerge_1.1.1_Linux_x86_64.tar.gz
+sudo tar -xvf gomerge_1.1.1_Linux_x86_64.tar.gz -C /usr/local/bin/
 sudo chmod +x /usr/local/bin/gomerge
 ```
 #### Usage
