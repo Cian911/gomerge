@@ -104,10 +104,16 @@ func NewCommand() (c *cobra.Command) {
 func promptAndFormat(pullRequests []*github.PullRequest, table *tablewriter.Table) []string {
 	prIds := []string{}
 	data := []string{}
+	repoName := ""
 
 	for _, pr := range pullRequests {
-		prIds = append(prIds, fmt.Sprintf("%d | %s", *pr.Number, *pr.Head.Repo.Name))
-		data = formatTable(pr, org, *pr.Head.Repo.Name)
+		if pr.Head.Repo == nil {
+			repoName = "Forked Likely Repository Removed."
+		} else {
+			repoName = *pr.Head.Repo.Name
+		}
+		prIds = append(prIds, fmt.Sprintf("%d | %s", *pr.Number, repoName))
+		data = formatTable(pr, org, repoName)
 		table = printer.SuccessStyle(table, data)
 	}
 	table.Render()
