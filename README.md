@@ -29,8 +29,8 @@ gomerge -h
 To install the compiled binary, you can go to the releases tab, and download the version most suitable to your environment. An example of such is below.
 
 ```bash
-wget https://github.com/Cian911/gomerge/releases/download/1.1.1/gomerge_1.1.1_Linux_x86_64.tar.gz
-sudo tar -xvf gomerge_1.1.1_Linux_x86_64.tar.gz -C /usr/local/bin/
+wget https://github.com/Cian911/gomerge/releases/download/1.2.0/gomerge_1.2.0_Linux_x86_64.tar.gz
+sudo tar -xvf gomerge_1.2.0_Linux_x86_64.tar.gz -C /usr/local/bin/
 sudo chmod +x /usr/local/bin/gomerge
 ```
 #### Usage
