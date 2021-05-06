@@ -1,4 +1,3 @@
-organization: Cian911
+organization: google
 repositories:
-- pr-test
-- syncwave
+- dagger
