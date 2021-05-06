@@ -4,6 +4,11 @@ before:
 builds:
 -
   main: cmd/gomerge/main.go
+  ldflags:
+    - -s -w
+    - -X main.Version={{ .Version }}
+    - -X main.Build={{ .Commit }}
+    - -X main.BuildDate={{ .Date }}
 archives:
 -
   id: gomerge

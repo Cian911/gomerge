@@ -2,6 +2,7 @@ package gomerge
 
 import (
 	"github.com/cian911/go-merge/pkg/cli/list"
+	"github.com/cian911/go-merge/pkg/cli/version"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -23,6 +24,7 @@ func New() (c *cobra.Command) {
 	viper.BindPFlag("config", c.PersistentFlags().Lookup("config"))
 
 	c.AddCommand(list.NewCommand())
+	c.AddCommand(version.NewCommand())
 
 	return
 }
