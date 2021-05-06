@@ -12,6 +12,8 @@ Gomerge is a tool to quickly enable you to bulk merge Github pull requests from 
 
 You must have created a github personal access token (PAT) to use this tool. For information on how to do so, you can follow the documentation https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token
 
+[![asciicast](https://asciinema.org/a/rgeyY3MnACm8PnpGHYmYu7bn4.svg)](https://asciinema.org/a/rgeyY3MnACm8PnpGHYmYu7bn4)
+
 #### Install 
 
 To install the latest version via `homebrew`, please run the following.
