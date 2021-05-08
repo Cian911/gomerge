@@ -1,5 +1,5 @@
 ## gomerge
-![GitHub Actions Status](https://github.com/Cian911/gomerge/workflows/Release/badge.svg)
+![GitHub Actions Status](https://github.com/Cian911/gomerge/workflows/Release/badge.svg) ![GitHub Actions Status](https://github.com/Cian911/gomerge/workflows/Test/badge.svg)
 
 <p align="center">
   <img style="float: right;" src="sample/gomerge-gopher.png" alt="Gomerge logo"/>
