@@ -18,8 +18,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-var org = ""
-var repo = ""
+var (
+	org  = ""
+	repo = ""
+)
 
 func NewCommand() (c *cobra.Command) {
 	c = &cobra.Command{
@@ -30,6 +32,7 @@ func NewCommand() (c *cobra.Command) {
 			orgRepo := viper.GetString("repo")
 			token := viper.GetString("token")
 			configFile := viper.GetString("config")
+			approveOnly := viper.GetString("approve")
 
 			configPresent := false
 
@@ -92,7 +95,11 @@ func NewCommand() (c *cobra.Command) {
 				for _, id := range selectedIds {
 					p := parsePrId(id)
 					prId, _ := strconv.Atoi(p[0])
-					mergePullRequest(ghClient, ctx, org, repo, prId)
+					if len(approveOnly) > 0 {
+						approvePullRequest(ghClient, ctx, org, repo, prId)
+					} else {
+						mergePullRequest(ghClient, ctx, org, repo, prId)
+					}
 				}
 			}
 		},
@@ -187,4 +194,20 @@ func mergePullRequest(ghClient *github.Client, ctx context.Context, org, repo st
 	}
 
 	fmt.Println(fmt.Sprintf("PR #%d: %v.", prId, *result.Message))
+}
+
+func approvePullRequest(ghClient *github.Client, ctx context.Context, org, repo string, prId int) {
+	// Create review
+	t := fmt.Sprintf(`PR #%d has been approved by GoMerge tool.`, prId)
+	e := "APPROVE"
+	reviewRequest := &github.PullRequestReviewRequest{
+		Body:  &t,
+		Event: &e,
+	}
+	review, _, err := ghClient.PullRequests.CreateReview(ctx, org, repo, prId, reviewRequest)
+	if err != nil {
+		log.Fatalf("Could not approve pukll request: %v", err)
+	}
+
+	fmt.Printf("PR #%d: %v\n", prId, *review.State)
 }
