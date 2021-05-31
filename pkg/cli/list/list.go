@@ -198,7 +198,7 @@ func mergePullRequest(ghClient *github.Client, ctx context.Context, org, repo st
 
 func approvePullRequest(ghClient *github.Client, ctx context.Context, org, repo string, prId int) {
 	// Create review
-	t := fmt.Sprintf(`PR #%d has been approved by GoMerge tool.`, prId)
+	t := fmt.Sprintf(`PR #%d has been approved by [GoMerge](https://github.com/Cian911/gomerge) tool. :rocket:`, prId)
 	e := "APPROVE"
 	reviewRequest := &github.PullRequestReviewRequest{
 		Body:  &t,
