@@ -16,7 +16,7 @@ func New() (c *cobra.Command) {
 	c.PersistentFlags().StringP("repo", "r", "", "Pass name of repository as argument (organization/repo).")
 	c.PersistentFlags().StringP("token", "t", "", "Pass your github personal access token (PAT).")
 	c.PersistentFlags().StringP("config", "c", "", "Pass an optional config file as an argument with list of repositories.")
-	c.PersistentFlags().StringP("approve", "a", "", "Pass an optional approve flag as an argument which will only approve and not merge selected repos.")
+	c.PersistentFlags().BoolP("approve", "a", false, "Pass an optional approve flag as an argument which will only approve and not merge selected repos.")
 
 	c.MarkFlagRequired("token")
 
