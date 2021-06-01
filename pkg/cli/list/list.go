@@ -19,10 +19,13 @@ import (
 )
 
 var (
-	org  = ""
-	repo = ""
+	org           = ""
+	repo          = ""
+	approveOnly   = false
+	configPresent = false
 )
 
+// TODO: Refactor NewCommnd
 func NewCommand() (c *cobra.Command) {
 	c = &cobra.Command{
 		Use:   "list",
@@ -32,9 +35,7 @@ func NewCommand() (c *cobra.Command) {
 			orgRepo := viper.GetString("repo")
 			token := viper.GetString("token")
 			configFile := viper.GetString("config")
-			approveOnly := viper.GetString("approve")
-
-			configPresent := false
+			approveOnly = viper.GetBool("approve")
 
 			if len(configFile) > 0 {
 				utils.ReadConfigFile(configFile)
@@ -75,7 +76,11 @@ func NewCommand() (c *cobra.Command) {
 				for _, id := range selectedIds {
 					p := parsePrId(id)
 					prId, _ := strconv.Atoi(p[0])
-					mergePullRequest(ghClient, ctx, org, p[1], prId)
+					if approveOnly {
+						approvePullRequest(ghClient, ctx, org, repo, prId)
+					} else {
+						mergePullRequest(ghClient, ctx, org, p[1], prId)
+					}
 				}
 			} else {
 				org, repo = parseOrgRepo(orgRepo, configPresent)
@@ -95,7 +100,7 @@ func NewCommand() (c *cobra.Command) {
 				for _, id := range selectedIds {
 					p := parsePrId(id)
 					prId, _ := strconv.Atoi(p[0])
-					if len(approveOnly) > 0 {
+					if approveOnly {
 						approvePullRequest(ghClient, ctx, org, repo, prId)
 					} else {
 						mergePullRequest(ghClient, ctx, org, repo, prId)
@@ -177,14 +182,22 @@ func parsePrId(prId string) []string {
 
 func selectPrIds(prIds []string) (*survey.MultiSelect, []string) {
 	selectedIds := []string{}
+	msg := ""
+	switch approveOnly {
+	case true:
+		msg = "Select which Pull Requests you would like to approve."
+	default:
+		msg = "Select which Pull Requests you would like to merge."
+	}
 	prompt := &survey.MultiSelect{
-		Message: "Select which Pull Requests you would like to merge.",
+		Message: msg,
 		Options: prIds,
 	}
 
 	return prompt, selectedIds
 }
 
+// TODO: Move to gitclient pkg
 func mergePullRequest(ghClient *github.Client, ctx context.Context, org, repo string, prId int) {
 	result, _, err := ghClient.PullRequests.Merge(ctx, org, repo, prId, gitclient.DefaultCommitMsg(), nil)
 
@@ -196,6 +209,7 @@ func mergePullRequest(ghClient *github.Client, ctx context.Context, org, repo st
 	fmt.Println(fmt.Sprintf("PR #%d: %v.", prId, *result.Message))
 }
 
+// TODO: Move to gitclient pkg
 func approvePullRequest(ghClient *github.Client, ctx context.Context, org, repo string, prId int) {
 	// Create review
 	t := fmt.Sprintf(`PR #%d has been approved by [GoMerge](https://github.com/Cian911/gomerge) tool. :rocket:`, prId)
@@ -206,7 +220,8 @@ func approvePullRequest(ghClient *github.Client, ctx context.Context, org, repo 
 	}
 	review, _, err := ghClient.PullRequests.CreateReview(ctx, org, repo, prId, reviewRequest)
 	if err != nil {
-		log.Fatalf("Could not approve pukll request: %v", err)
+		//TODO: Parse error to check if user tried to approve their own PR..
+		log.Fatalf("Could not approve pull request, did you try to approve your on pull request? - %v", err)
 	}
 
 	fmt.Printf("PR #%d: %v\n", prId, *review.State)
