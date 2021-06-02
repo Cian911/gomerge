@@ -126,6 +126,10 @@ func promptAndFormat(pullRequests []*github.PullRequest, table *tablewriter.Tabl
 		}
 		prIds = append(prIds, fmt.Sprintf("%d | %s", *pr.Number, repoName))
 		data = formatTable(pr, org, repoName)
+		if len(data) == 0 {
+			// If there is an issue with the pr, skip
+			continue
+		}
 		table = printer.SuccessStyle(table, data)
 	}
 	table.Render()
@@ -149,8 +153,11 @@ func initTable() (table *tablewriter.Table) {
 	return
 }
 
-func formatTable(pr *github.PullRequest, org, repo string) []string {
-	data := []string{
+func formatTable(pr *github.PullRequest, org, repo string) (data []string) {
+	if (pr.Number == nil) || (pr.State == nil) || (pr.Title == nil) || (pr.CreatedAt == nil) {
+		return
+	}
+	data = []string{
 		fmt.Sprintf("#%s", printer.FormatID(pr.Number)),
 		printer.FormatString(pr.State),
 		printer.FormatString(pr.Title),
@@ -158,7 +165,7 @@ func formatTable(pr *github.PullRequest, org, repo string) []string {
 		printer.FormatTime(pr.CreatedAt),
 	}
 
-	return data
+	return
 }
 
 func parseOrgRepo(repo string, configPresent bool) (org, repository string) {
