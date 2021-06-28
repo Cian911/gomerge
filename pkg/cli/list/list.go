@@ -1,7 +1,6 @@
 package list
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
@@ -77,9 +76,9 @@ func NewCommand() (c *cobra.Command) {
 					p := parsePrId(id)
 					prId, _ := strconv.Atoi(p[0])
 					if approveOnly {
-						approvePullRequest(ghClient, ctx, org, repo, prId)
+						gitclient.ApprovePullRequest(ghClient, ctx, org, repo, prId)
 					} else {
-						mergePullRequest(ghClient, ctx, org, p[1], prId)
+						gitclient.MergePullRequest(ghClient, ctx, org, p[1], prId)
 					}
 				}
 			} else {
@@ -101,9 +100,9 @@ func NewCommand() (c *cobra.Command) {
 					p := parsePrId(id)
 					prId, _ := strconv.Atoi(p[0])
 					if approveOnly {
-						approvePullRequest(ghClient, ctx, org, repo, prId)
+						gitclient.ApprovePullRequest(ghClient, ctx, org, repo, prId)
 					} else {
-						mergePullRequest(ghClient, ctx, org, repo, prId)
+						gitclient.MergePullRequest(ghClient, ctx, org, repo, prId)
 					}
 				}
 			}
@@ -202,34 +201,4 @@ func selectPrIds(prIds []string) (*survey.MultiSelect, []string) {
 	}
 
 	return prompt, selectedIds
-}
-
-// TODO: Move to gitclient pkg
-func mergePullRequest(ghClient *github.Client, ctx context.Context, org, repo string, prId int) {
-	result, _, err := ghClient.PullRequests.Merge(ctx, org, repo, prId, gitclient.DefaultCommitMsg(), nil)
-
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
-
-	fmt.Println(fmt.Sprintf("PR #%d: %v.", prId, *result.Message))
-}
-
-// TODO: Move to gitclient pkg
-func approvePullRequest(ghClient *github.Client, ctx context.Context, org, repo string, prId int) {
-	// Create review
-	t := fmt.Sprintf(`PR #%d has been approved by [GoMerge](https://github.com/Cian911/gomerge) tool. :rocket:`, prId)
-	e := "APPROVE"
-	reviewRequest := &github.PullRequestReviewRequest{
-		Body:  &t,
-		Event: &e,
-	}
-	review, _, err := ghClient.PullRequests.CreateReview(ctx, org, repo, prId, reviewRequest)
-	if err != nil {
-		//TODO: Parse error to check if user tried to approve their own PR..
-		log.Fatalf("Could not approve pull request, did you try to approve your on pull request? - %v", err)
-	}
-
-	fmt.Printf("PR #%d: %v\n", prId, *review.State)
 }

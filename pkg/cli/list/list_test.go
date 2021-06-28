@@ -66,7 +66,7 @@ func TestFormatTable(t *testing.T) {
 		assert.Equal(t, got, want)
 	})
 
-	t.Run("It logs failure when attrs are not present in pr struct", func(t *testing.T) {
+	t.Run("It returns an empty string array when attrs are not present in pr struct", func(t *testing.T) {
 		state := "#open"
 		title := "My Pr"
 
