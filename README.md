@@ -1,12 +1,12 @@
 ## gomerge
-![GitHub Actions Status](https://github.com/Cian911/gomerge/workflows/Release/badge.svg) ![GitHub Actions Status](https://github.com/Cian911/gomerge/workflows/Test/badge.svg)
+![GitHub Actions Status](https://github.com/Cian911/gomerge/workflows/Release/badge.svg) ![GitHub Actions Status](https://github.com/Cian911/gomerge/workflows/Test/badge.svg) ![Downloads](https://img.shields.io/github/downloads/cian911/gomerge/total.svg)
 
 <p align="center">
   <img style="float: right;" src="sample/gomerge-gopher.png" alt="Gomerge logo"/>
 </p>
 
 #### Description
-Gomerge is a tool to quickly enable you to bulk merge Github pull requests from your terminal. The intention of this tool is to simplfy merging large numbers of Github pull requests, as they can certainly grow when you're maintaining a large number of repositories (Ahem, dependabot!). This tool should be able to run on most systems.
+Gomerge is a tool to quickly enable you to bulk merge and/or approve Github pull requests from your terminal. The intention of this tool is to simplfy merging large numbers of Github pull requests, as they can certainly grow when you're maintaining a large number of repositories (Ahem, dependabot!). This tool should be able to run on most systems.
 
 #### Requirements
 
@@ -29,8 +29,8 @@ gomerge -h
 To install the compiled binary, you can go to the releases tab, and download the version most suitable to your environment. An example of such is below.
 
 ```bash
-wget https://github.com/Cian911/gomerge/releases/download/1.2.0/gomerge_1.2.0_Linux_x86_64.tar.gz
-sudo tar -xvf gomerge_1.2.0_Linux_x86_64.tar.gz -C /usr/local/bin/
+wget https://github.com/Cian911/gomerge/releases/download/2.0.0/gomerge_2.0.0_Linux_x86_64.tar.gz
+sudo tar -xvf gomerge_2.0.0_Linux_x86_64.tar.gz -C /usr/local/bin/
 sudo chmod +x /usr/local/bin/gomerge
 ```
 
@@ -54,8 +54,10 @@ Usage:
 Available Commands:
   help        Help about any command
   list        List all open pull request for a repository you wish to merge.
+  version     Prints the current version and build information.
 
 Flags:
+  -a, --approve         Pass an optional approve flag as an argument which will only approve and not merge selected repos.
   -c, --config string   Pass an optional config file as an argument with list of repositories.
   -h, --help            help for gomerge
   -r, --repo string     Pass name of repository as argument (organization/repo).
@@ -64,7 +66,7 @@ Flags:
 Use "gomerge [command] --help" for more information about a command.
 ```
 
-To get a list of open and active pull requests for a given repo, you can run the following command.
+To get a list of open and active pull requests for a given repo, you can run the following command. Note, this will list all available PRs for merging, if you want to just approve a list of PRs, then add the `-a` to the below command too.
 
 **N.B**: Please ensure to add your organization followed by the name of your repository. In most cases this will be your github username, but if referencing a repository that exists within an organization you have access to, be sure to substitute it for that E.G `google/example-repo`.
 
@@ -82,7 +84,7 @@ From here, follow the instructions to select which pull request you wish to merg
 PR #3: Pull Request successfully merged.
 ```
 
-##### Bulk Merging Pull Requests
+##### Bulk Merging/Approving Pull Requests
 
 As of version `1.1.0` there is a new option available to pass a config.yaml as an arugment to the `gomerge` tool which will give the user the option to configure a list of repositories in order to more easily _bulk merge_ pull requests.
 
@@ -99,6 +101,12 @@ You can then run the tool like so, passing the config file as a flag.
 
 ```bash
 gomerge list -t $GITHUB_TOKEN -c config.yaml
+```
+
+And again, if you just wish to approve a list of available PRs, just add the `-a` flag like so.
+
+```bash
+gomerge list -t $GITHUB_TOKEN -c config.yaml -a
 ```
 
 You should see a list of active and open pull requets from the repositories you have defined in your configuration file.

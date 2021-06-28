@@ -1,7 +1,6 @@
 package list
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
@@ -18,9 +17,14 @@ import (
 	"github.com/spf13/viper"
 )
 
-var org = ""
-var repo = ""
+var (
+	org           = ""
+	repo          = ""
+	approveOnly   = false
+	configPresent = false
+)
 
+// TODO: Refactor NewCommnd
 func NewCommand() (c *cobra.Command) {
 	c = &cobra.Command{
 		Use:   "list",
@@ -30,8 +34,7 @@ func NewCommand() (c *cobra.Command) {
 			orgRepo := viper.GetString("repo")
 			token := viper.GetString("token")
 			configFile := viper.GetString("config")
-
-			configPresent := false
+			approveOnly = viper.GetBool("approve")
 
 			if len(configFile) > 0 {
 				utils.ReadConfigFile(configFile)
@@ -72,7 +75,11 @@ func NewCommand() (c *cobra.Command) {
 				for _, id := range selectedIds {
 					p := parsePrId(id)
 					prId, _ := strconv.Atoi(p[0])
-					mergePullRequest(ghClient, ctx, org, p[1], prId)
+					if approveOnly {
+						gitclient.ApprovePullRequest(ghClient, ctx, org, repo, prId)
+					} else {
+						gitclient.MergePullRequest(ghClient, ctx, org, p[1], prId)
+					}
 				}
 			} else {
 				org, repo = parseOrgRepo(orgRepo, configPresent)
@@ -92,7 +99,11 @@ func NewCommand() (c *cobra.Command) {
 				for _, id := range selectedIds {
 					p := parsePrId(id)
 					prId, _ := strconv.Atoi(p[0])
-					mergePullRequest(ghClient, ctx, org, repo, prId)
+					if approveOnly {
+						gitclient.ApprovePullRequest(ghClient, ctx, org, repo, prId)
+					} else {
+						gitclient.MergePullRequest(ghClient, ctx, org, repo, prId)
+					}
 				}
 			}
 		},
@@ -114,6 +125,10 @@ func promptAndFormat(pullRequests []*github.PullRequest, table *tablewriter.Tabl
 		}
 		prIds = append(prIds, fmt.Sprintf("%d | %s", *pr.Number, repoName))
 		data = formatTable(pr, org, repoName)
+		if len(data) == 0 {
+			// If there is an issue with the pr, skip
+			continue
+		}
 		table = printer.SuccessStyle(table, data)
 	}
 	table.Render()
@@ -137,8 +152,11 @@ func initTable() (table *tablewriter.Table) {
 	return
 }
 
-func formatTable(pr *github.PullRequest, org, repo string) []string {
-	data := []string{
+func formatTable(pr *github.PullRequest, org, repo string) (data []string) {
+	if (pr.Number == nil) || (pr.State == nil) || (pr.Title == nil) || (pr.CreatedAt == nil) {
+		return
+	}
+	data = []string{
 		fmt.Sprintf("#%s", printer.FormatID(pr.Number)),
 		printer.FormatString(pr.State),
 		printer.FormatString(pr.Title),
@@ -146,7 +164,7 @@ func formatTable(pr *github.PullRequest, org, repo string) []string {
 		printer.FormatTime(pr.CreatedAt),
 	}
 
-	return data
+	return
 }
 
 func parseOrgRepo(repo string, configPresent bool) (org, repository string) {
@@ -170,21 +188,17 @@ func parsePrId(prId string) []string {
 
 func selectPrIds(prIds []string) (*survey.MultiSelect, []string) {
 	selectedIds := []string{}
+	msg := ""
+	switch approveOnly {
+	case true:
+		msg = "Select which Pull Requests you would like to approve."
+	default:
+		msg = "Select which Pull Requests you would like to merge."
+	}
 	prompt := &survey.MultiSelect{
-		Message: "Select which Pull Requests you would like to merge.",
+		Message: msg,
 		Options: prIds,
 	}
 
 	return prompt, selectedIds
-}
-
-func mergePullRequest(ghClient *github.Client, ctx context.Context, org, repo string, prId int) {
-	result, _, err := ghClient.PullRequests.Merge(ctx, org, repo, prId, gitclient.DefaultCommitMsg(), nil)
-
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
-
-	fmt.Println(fmt.Sprintf("PR #%d: %v.", prId, *result.Message))
 }
