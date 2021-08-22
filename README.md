@@ -71,7 +71,7 @@ To get a list of open and active pull requests for a given repo, you can run the
 **N.B**: Please ensure to add your organization followed by the name of your repository. In most cases this will be your github username, but if referencing a repository that exists within an organization you have access to, be sure to substitute it for that E.G `google/example-repo`.
 
 ```bash
-gomerge list -r Cian911/go-merge -t ${GITHUB_TOKEN}
+gomerge list -r Cian911/gomerge -t ${GITHUB_TOKEN}
 ```
 
 If there are any active and open pull requests for your given repository, you will see an output similar to below.
