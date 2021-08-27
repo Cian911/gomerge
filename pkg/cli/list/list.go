@@ -85,6 +85,10 @@ func NewCommand() (c *cobra.Command) {
 				org, repo = parseOrgRepo(orgRepo, configPresent)
 				// if user has NOT passed a config file
 				pullRequests, _, err := ghClient.PullRequests.List(ctx, org, repo, nil)
+				for _, pr := range pullRequests {
+					realPr, _, _ := ghClient.PullRequests.Get(ctx, org, repo, *pr.Number)
+					pullRequestsArray = append(pullRequestsArray, realPr)
+				}
 				if err != nil {
 					log.Fatal(err)
 					os.Exit(1)
@@ -95,7 +99,7 @@ func NewCommand() (c *cobra.Command) {
 					os.Exit(0)
 				}
 
-				selectedIds := promptAndFormat(pullRequests, table)
+				selectedIds := promptAndFormat(pullRequestsArray, table)
 				for _, id := range selectedIds {
 					p := parsePrId(id)
 					prId, _ := strconv.Atoi(p[0])
@@ -146,6 +150,7 @@ func initTable() (table *tablewriter.Table) {
 			"Title",
 			"Repository",
 			"Created",
+			"Mergeable",
 		},
 	)
 	table = printer.HeaderStyle(table)
@@ -153,7 +158,7 @@ func initTable() (table *tablewriter.Table) {
 }
 
 func formatTable(pr *github.PullRequest, org, repo string) (data []string) {
-	if (pr.Number == nil) || (pr.State == nil) || (pr.Title == nil) || (pr.CreatedAt == nil) {
+	if (pr.Number == nil) || (pr.State == nil) || (pr.Title == nil) || (pr.CreatedAt == nil) || (pr.MergeableState == nil) {
 		return
 	}
 	data = []string{
@@ -162,6 +167,7 @@ func formatTable(pr *github.PullRequest, org, repo string) (data []string) {
 		printer.FormatString(pr.Title),
 		fmt.Sprintf("%s/%s", org, repo),
 		printer.FormatTime(pr.CreatedAt),
+		printer.FormatMergeability(pr.MergeableState),
 	}
 
 	return

@@ -18,22 +18,34 @@ func HeaderStyle(t *tablewriter.Table) *tablewriter.Table {
 		tablewriter.Colors{tablewriter.Bold},
 		tablewriter.Colors{tablewriter.Bold},
 		tablewriter.Colors{tablewriter.Bold},
+		tablewriter.Colors{tablewriter.Bold},
 		tablewriter.Colors{tablewriter.Bold})
 	return t
 }
 
 func SuccessStyle(t *tablewriter.Table, data []string) *tablewriter.Table {
+	mergeable := tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiWhiteColor}
+
+	if data[len(data)-1] == "FALSE" {
+		mergeable = tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiRedColor}
+	} else {
+		mergeable = tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiGreenColor}
+	}
 	t.Rich(data, []tablewriter.Colors{
 		tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiCyanColor},
 		tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiGreenColor},
 		tablewriter.Colors{tablewriter.Bold},
 		tablewriter.Colors{tablewriter.Bold},
 		tablewriter.Colors{tablewriter.Bold},
+		mergeable,
 	})
 	return t
 }
 
 func ErrorStyle(t *tablewriter.Table, data []string) *tablewriter.Table {
-	t.Rich(data, []tablewriter.Colors{tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiRedColor}, tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiRedColor}})
+	t.Rich(data, []tablewriter.Colors{
+		tablewriter.Colors{tablewriter.Bold,
+			tablewriter.FgHiRedColor},
+		tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiRedColor}})
 	return t
 }
