@@ -39,8 +39,8 @@ func ApprovePullRequest(ghClient *github.Client, ctx context.Context, org, repo 
 	fmt.Printf("PR #%d: %v\n", prId, *review.State)
 }
 
-func MergePullRequest(ghClient *github.Client, ctx context.Context, org, repo string, prId int) {
-	result, _, err := ghClient.PullRequests.Merge(ctx, org, repo, prId, defaultCommitMsg(), nil)
+func MergePullRequest(ghClient *github.Client, ctx context.Context, org, repo string, prId int, mergeMethod string) {
+	result, _, err := ghClient.PullRequests.Merge(ctx, org, repo, prId, defaultCommitMsg(), &github.PullRequestOptions{MergeMethod: mergeMethod})
 
 	if err != nil {
 		log.Fatal(err)

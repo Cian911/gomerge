@@ -17,6 +17,7 @@ func New() (c *cobra.Command) {
 	c.PersistentFlags().StringP("token", "t", "", "Pass your github personal access token (PAT).")
 	c.PersistentFlags().StringP("config", "c", "", "Pass an optional config file as an argument with list of repositories.")
 	c.PersistentFlags().BoolP("approve", "a", false, "Pass an optional approve flag as an argument which will only approve and not merge selected repos.")
+	c.PersistentFlags().StringP("merge-method", "m", "", "Pass an optional merge method for the pull request (merge [default], squash, rebase).")
 
 	c.MarkFlagRequired("token")
 
@@ -24,6 +25,7 @@ func New() (c *cobra.Command) {
 	viper.BindPFlag("token", c.PersistentFlags().Lookup("token"))
 	viper.BindPFlag("config", c.PersistentFlags().Lookup("config"))
 	viper.BindPFlag("approve", c.PersistentFlags().Lookup("approve"))
+	viper.BindPFlag("merge-method", c.PersistentFlags().Lookup("merge-method"))
 
 	c.AddCommand(list.NewCommand())
 	c.AddCommand(version.NewCommand())
