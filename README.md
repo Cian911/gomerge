@@ -57,11 +57,12 @@ Available Commands:
   version     Prints the current version and build information.
 
 Flags:
-  -a, --approve         Pass an optional approve flag as an argument which will only approve and not merge selected repos.
-  -c, --config string   Pass an optional config file as an argument with list of repositories.
-  -h, --help            help for gomerge
-  -r, --repo string     Pass name of repository as argument (organization/repo).
-  -t, --token string    Pass your github personal access token (PAT).
+  -a, --approve               Pass an optional approve flag as an argument which will only approve and not merge selected repos.
+  -c, --config string         Pass an optional config file as an argument with list of repositories.
+  -h, --help                  help for gomerge
+  -m, --merge-method string   Pass an optional merge method for the pull request (merge [default], squash, rebase).
+  -r, --repo string           Pass name of repository as argument (organization/repo).
+  -t, --token string          Pass your github personal access token (PAT).
 
 Use "gomerge [command] --help" for more information about a command.
 ```
