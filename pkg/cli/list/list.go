@@ -22,6 +22,7 @@ var (
 	repo          = ""
 	approveOnly   = false
 	configPresent = false
+	mergeMethod   = "merge"
 )
 
 // TODO: Refactor NewCommnd
@@ -35,6 +36,7 @@ func NewCommand() (c *cobra.Command) {
 			token := viper.GetString("token")
 			configFile := viper.GetString("config")
 			approveOnly = viper.GetBool("approve")
+			mergeMethod := viper.GetString("merge-method")
 
 			if len(configFile) > 0 {
 				utils.ReadConfigFile(configFile)
@@ -78,7 +80,7 @@ func NewCommand() (c *cobra.Command) {
 					if approveOnly {
 						gitclient.ApprovePullRequest(ghClient, ctx, org, repo, prId)
 					} else {
-						gitclient.MergePullRequest(ghClient, ctx, org, p[1], prId)
+						gitclient.MergePullRequest(ghClient, ctx, org, p[1], prId, mergeMethod)
 					}
 				}
 			} else {
@@ -102,7 +104,7 @@ func NewCommand() (c *cobra.Command) {
 					if approveOnly {
 						gitclient.ApprovePullRequest(ghClient, ctx, org, repo, prId)
 					} else {
-						gitclient.MergePullRequest(ghClient, ctx, org, repo, prId)
+						gitclient.MergePullRequest(ghClient, ctx, org, repo, prId, mergeMethod)
 					}
 				}
 			}
