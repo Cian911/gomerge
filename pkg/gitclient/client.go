@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
@@ -32,7 +31,7 @@ func ApprovePullRequest(ghClient *github.Client, ctx context.Context, org, repo 
 	}
 	review, _, err := ghClient.PullRequests.CreateReview(ctx, org, repo, prId, reviewRequest)
 	if err != nil {
-		//TODO: Parse error to check if user tried to approve their own PR..
+		// TODO: Parse error to check if user tried to approve their own PR..
 		log.Fatalf("Could not approve pull request, did you try to approve your on pull request? - %v", err)
 	}
 
@@ -41,10 +40,8 @@ func ApprovePullRequest(ghClient *github.Client, ctx context.Context, org, repo 
 
 func MergePullRequest(ghClient *github.Client, ctx context.Context, org, repo string, prId int, mergeMethod string) {
 	result, _, err := ghClient.PullRequests.Merge(ctx, org, repo, prId, defaultCommitMsg(), &github.PullRequestOptions{MergeMethod: mergeMethod})
-
 	if err != nil {
 		log.Fatal(err)
-		os.Exit(1)
 	}
 
 	fmt.Println(fmt.Sprintf("PR #%d: %v.", prId, *result.Message))

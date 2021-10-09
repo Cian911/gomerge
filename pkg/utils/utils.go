@@ -3,7 +3,6 @@ package utils
 import (
 	"fmt"
 	"log"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -23,7 +22,6 @@ func ReadConfigFile(path string) {
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Fatal(fmt.Errorf("Could not read config file: %s\n", err))
-		os.Exit(1)
 	}
 }
 

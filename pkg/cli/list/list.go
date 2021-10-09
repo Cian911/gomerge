@@ -45,7 +45,6 @@ func NewCommand() (c *cobra.Command) {
 
 			if !configPresent && len(orgRepo) <= 0 {
 				log.Fatal("You must pass either a config file or repository as argument to continue.")
-				os.Exit(1)
 			}
 
 			ghClient := gitclient.Client(token, ctx)
@@ -58,10 +57,8 @@ func NewCommand() (c *cobra.Command) {
 
 				for _, v := range viper.GetStringSlice("repositories") {
 					pullRequests, _, err := ghClient.PullRequests.List(ctx, org, v, nil)
-
 					if err != nil {
 						log.Fatal(err)
-						os.Exit(1)
 					}
 
 					// Use variadic notation to append to array here...
@@ -89,7 +86,6 @@ func NewCommand() (c *cobra.Command) {
 				pullRequests, _, err := ghClient.PullRequests.List(ctx, org, repo, nil)
 				if err != nil {
 					log.Fatal(err)
-					os.Exit(1)
 				}
 
 				if len(pullRequests) == 0 {
@@ -174,7 +170,6 @@ func parseOrgRepo(repo string, configPresent bool) (org, repository string) {
 
 	if len(str) <= 1 {
 		log.Fatal("You must pass your repo name like so: organization/repository to continue.")
-		os.Exit(1)
 	}
 
 	org = str[0]
