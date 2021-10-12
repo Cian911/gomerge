@@ -29,8 +29,8 @@ gomerge -h
 To install the compiled binary, you can go to the releases tab, and download the version most suitable to your environment. An example of such is below.
 
 ```bash
-wget https://github.com/Cian911/gomerge/releases/download/2.1.0/gomerge_2.1.0_Linux_x86_64.tar.gz
-sudo tar -xvf gomerge_2.1.0_Linux_x86_64.tar.gz -C /usr/local/bin/
+wget https://github.com/Cian911/gomerge/releases/download/2.1.1/gomerge_2.1.1_Linux_x86_64.tar.gz
+sudo tar -xvf gomerge_2.1.1_Linux_x86_64.tar.gz -C /usr/local/bin/
 sudo chmod +x /usr/local/bin/gomerge
 ```
 
@@ -86,8 +86,6 @@ PR #3: Pull Request successfully merged.
 ```
 
 ##### Bulk Merging/Approving Pull Requests
-
-As of version `1.1.0` there is a new option available to pass a config.yaml as an arugment to the `gomerge` tool which will give the user the option to configure a list of repositories in order to more easily _bulk merge_ pull requests.
 
 You should first create a `config.yaml` file in the following format.
 
