@@ -30,8 +30,8 @@ func ReadConfigFile(path string) {
 func parseConfigFile(path string) (filename, ext string) {
 	filename = filepath.Base(path)
 	ext = filepath.Ext(filename)
-	filename = strings.TrimSuffix(filename, filepath.Ext(filename))
-	ext = ext[1:len(ext)]
+	filename = strings.TrimSuffix(filename, ext)
+	ext = ext[1:]
 
 	return
 }
