@@ -33,7 +33,6 @@ func NewCommand() (c *cobra.Command) {
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := cmd.Context()
 			orgRepo := viper.GetString("repo")
-			token := viper.GetString("token")
 			configFile := viper.GetString("config")
 			approveOnly = viper.GetBool("approve")
 			mergeMethod := viper.GetString("merge-method")
@@ -47,6 +46,7 @@ func NewCommand() (c *cobra.Command) {
 				log.Fatal("You must pass either a config file or repository as argument to continue.")
 			}
 
+			token := viper.GetString("token")
 			ghClient := gitclient.Client(token, ctx)
 			pullRequestsArray := []*github.PullRequest{}
 			table := initTable()
