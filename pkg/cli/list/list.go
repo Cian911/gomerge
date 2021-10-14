@@ -47,6 +47,10 @@ func NewCommand() (c *cobra.Command) {
 			}
 
 			token := viper.GetString("token")
+			if val, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
+				token = val
+			}
+
 			ghClient := gitclient.Client(token, ctx)
 			pullRequestsArray := []*github.PullRequest{}
 			table := initTable()
