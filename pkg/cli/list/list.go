@@ -25,6 +25,10 @@ var (
 	mergeMethod   = "merge"
 )
 
+const (
+	TokenEnvVar = "GITHUB_TOKEN"
+)
+
 // TODO: Refactor NewCommnd
 func NewCommand() (c *cobra.Command) {
 	c = &cobra.Command{
@@ -36,6 +40,7 @@ func NewCommand() (c *cobra.Command) {
 			configFile := viper.GetString("config")
 			approveOnly = viper.GetBool("approve")
 			mergeMethod := viper.GetString("merge-method")
+			flagToken := viper.GetString("token")
 
 			if len(configFile) > 0 {
 				utils.ReadConfigFile(configFile)
@@ -45,12 +50,9 @@ func NewCommand() (c *cobra.Command) {
 			if !configPresent && len(orgRepo) <= 0 {
 				log.Fatal("You must pass either a config file or repository as argument to continue.")
 			}
+			configToken := viper.GetString("token")
 
-			token := viper.GetString("token")
-			if val, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
-				token = val
-			}
-
+			token := getToken(flagToken, configToken)
 			ghClient := gitclient.Client(token, ctx)
 			pullRequestsArray := []*github.PullRequest{}
 			table := initTable()
@@ -185,6 +187,19 @@ func parseOrgRepo(repo string, configPresent bool) (org, repository string) {
 func parsePrId(prId string) []string {
 	str := strings.Split(strings.ReplaceAll(prId, " ", ""), "|")
 	return str
+}
+
+func getToken(flag, config string) string {
+	if flag != "" {
+		return flag
+	}
+	if config != "" {
+		return config
+	}
+	if env, ok := os.LookupEnv(TokenEnvVar); ok {
+		return env
+	}
+	return ""
 }
 
 func selectPrIds(prIds []string) (*survey.MultiSelect, []string) {

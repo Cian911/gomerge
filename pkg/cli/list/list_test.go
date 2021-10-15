@@ -1,6 +1,7 @@
 package list
 
 import (
+	"os"
 	"testing"
 	"time"
 
@@ -79,5 +80,59 @@ func TestFormatTable(t *testing.T) {
 		want := []string(nil)
 
 		assert.Equal(t, got, want)
+	})
+}
+
+func TestListGetToken(t *testing.T) {
+	var (
+		flag               = "flag@token"
+		config             = "config@token"
+		envVar             = "env@token"
+	)
+
+	t.Run("When a given token is set by flag, it should return token as the flag value", func(t *testing.T) {
+		got := getToken(flag, "")
+		want := flag
+		assert.Equal(t, want, got)
+	})
+
+	t.Run("When a given token is set by config, it should return token as defined on the configuration file", func(t *testing.T) {
+		got := getToken("", config)
+		want := config
+		assert.Equal(t, want, got)
+	})
+
+	t.Run("When a given token is set by environment variable, it should return token as defined on the environment", func(t *testing.T) {
+		os.Setenv(TokenEnvVar, envVar)
+		got := getToken("", "")
+		want := envVar
+		assert.Equal(t, want, got)
+	})
+
+	t.Run("When a given token is set on flag and config file, it should return the value set on flag", func(t *testing.T) {
+		got := getToken(flag, config)
+		want := flag
+		assert.Equal(t, want, got)
+	})
+
+	t.Run("When a given token is set on flag and environment, it should return the value set on the flag", func(t *testing.T) {
+		os.Setenv(TokenEnvVar, envVar)
+		got := getToken(flag, "")
+		want := flag
+		assert.Equal(t, want, got)
+	})
+
+	t.Run("When a given token is set on config file and environment, it should return the value set on the config file", func(t *testing.T) {
+		os.Setenv(TokenEnvVar, envVar)
+		got := getToken("", config)
+		want := config
+		assert.Equal(t, want, got)
+	})
+
+	t.Run("When a given token is set on flag, config file, and environment, it should return the value set on flag", func(t *testing.T) {
+		os.Setenv(TokenEnvVar, envVar)
+		got := getToken(flag, config)
+		want := flag
+		assert.Equal(t, want, got)
 	})
 }
