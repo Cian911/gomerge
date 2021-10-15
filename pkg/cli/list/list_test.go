@@ -85,54 +85,71 @@ func TestFormatTable(t *testing.T) {
 
 func TestListGetToken(t *testing.T) {
 	var (
-		flag               = "flag@token"
-		config             = "config@token"
-		envVar             = "env@token"
+		flag   = "flag@token"
+		config = "config@token"
+		envVar = "env@token"
 	)
 
 	t.Run("When a given token is set by flag, it should return token as the flag value", func(t *testing.T) {
-		got := getToken(flag, "")
+		got, err := getToken(flag, "")
 		want := flag
+		assert.Nil(t, err)
 		assert.Equal(t, want, got)
 	})
 
 	t.Run("When a given token is set by config, it should return token as defined on the configuration file", func(t *testing.T) {
-		got := getToken("", config)
+		got, err := getToken("", config)
 		want := config
+		assert.Nil(t, err)
 		assert.Equal(t, want, got)
 	})
 
 	t.Run("When a given token is set by environment variable, it should return token as defined on the environment", func(t *testing.T) {
 		os.Setenv(TokenEnvVar, envVar)
-		got := getToken("", "")
+		got, err := getToken("", "")
 		want := envVar
+		assert.Nil(t, err)
 		assert.Equal(t, want, got)
+		os.Unsetenv(TokenEnvVar)
 	})
 
 	t.Run("When a given token is set on flag and config file, it should return the value set on flag", func(t *testing.T) {
-		got := getToken(flag, config)
+		got, err := getToken(flag, config)
 		want := flag
+		assert.Nil(t, err)
 		assert.Equal(t, want, got)
 	})
 
 	t.Run("When a given token is set on flag and environment, it should return the value set on the flag", func(t *testing.T) {
 		os.Setenv(TokenEnvVar, envVar)
-		got := getToken(flag, "")
+		got, err := getToken(flag, "")
 		want := flag
+		assert.Nil(t, err)
 		assert.Equal(t, want, got)
+		os.Unsetenv(TokenEnvVar)
 	})
 
 	t.Run("When a given token is set on config file and environment, it should return the value set on the config file", func(t *testing.T) {
 		os.Setenv(TokenEnvVar, envVar)
-		got := getToken("", config)
+		got, err := getToken("", config)
 		want := config
+		assert.Nil(t, err)
 		assert.Equal(t, want, got)
+		os.Unsetenv(TokenEnvVar)
 	})
 
 	t.Run("When a given token is set on flag, config file, and environment, it should return the value set on flag", func(t *testing.T) {
 		os.Setenv(TokenEnvVar, envVar)
-		got := getToken(flag, config)
+		got, err := getToken(flag, config)
 		want := flag
+		assert.Nil(t, err)
 		assert.Equal(t, want, got)
+		os.Unsetenv(TokenEnvVar)
+	})
+
+	t.Run("When no token is passed should return error", func(t *testing.T) {
+		got, err := getToken("", "")
+		assert.Equal(t, "", got)
+		assert.Error(t, err)
 	})
 }

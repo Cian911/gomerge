@@ -52,7 +52,11 @@ func NewCommand() (c *cobra.Command) {
 			}
 			configToken := viper.GetString("token")
 
-			token := getToken(flagToken, configToken)
+			token, err := getToken(flagToken, configToken)
+			if err != nil {
+				log.Fatal(err)
+			}
+
 			ghClient := gitclient.Client(token, ctx)
 			pullRequestsArray := []*github.PullRequest{}
 			table := initTable()
@@ -189,17 +193,19 @@ func parsePrId(prId string) []string {
 	return str
 }
 
-func getToken(flag, config string) string {
-	if flag != "" {
-		return flag
+func getToken(flag, config string) (str string, err error) {
+	if flag != str {
+		return flag, nil
 	}
-	if config != "" {
-		return config
+	if config != str {
+		return config, nil
 	}
 	if env, ok := os.LookupEnv(TokenEnvVar); ok {
-		return env
+		return env, nil
 	}
-	return ""
+
+	err = fmt.Errorf("you must pass a github token to continue")
+	return
 }
 
 func selectPrIds(prIds []string) (*survey.MultiSelect, []string) {

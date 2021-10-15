@@ -22,7 +22,7 @@ func TestReadConfigFile(t *testing.T) {
 		got1 := viper.Get("token")
 		want1 := "1234test@gh*token"
 
-		if got1 != want {
+		if got1 != want1 {
 			t.Errorf("got %v want %v", got, want)
 		}
 	})
