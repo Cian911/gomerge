@@ -1,4 +1,5 @@
 organization: Cian911
+token: 1234test@gh*token
 repositories:
 - pr-test
 - syncwave

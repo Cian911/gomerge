@@ -18,6 +18,13 @@ func TestReadConfigFile(t *testing.T) {
 		if got != want {
 			t.Errorf("got %v want %v", got, want)
 		}
+
+		got1 := viper.Get("token")
+		want1 := "1234test@gh*token"
+
+		if got1 != want1 {
+			t.Errorf("got %v want %v", got, want)
+		}
 	})
 
 	t.Run("It extracts filename and ext from path", func(t *testing.T) {
