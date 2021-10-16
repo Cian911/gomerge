@@ -75,6 +75,8 @@ To get a list of open and active pull requests for a given repo, you can run the
 gomerge list -r Cian911/gomerge -t ${GITHUB_TOKEN}
 ```
 
+Something to note, if you have your github token defined as an environment variable in the following format `GITHUB_TOKEN`, gomerge will try and use that automagically if you choose not to define a token via a flag. Thanks to [@caioeverest](https://github.com/caioeverest) for this work!
+
 If there are any active and open pull requests for your given repository, you will see an output similar to below.
 
 ![gomerge Sample Output](https://i.imgur.com/UIsiEGd.png)
