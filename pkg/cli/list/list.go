@@ -1,6 +1,7 @@
 package list
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -35,7 +36,7 @@ func NewCommand() (c *cobra.Command) {
 		Use:   "list",
 		Short: "List all open pull request for a repository you wish to merge.",
 		Run: func(cmd *cobra.Command, args []string) {
-			ctx := cmd.Context()
+			ctx := context.Background()
 			orgRepo := viper.GetString("repo")
 			configFile := viper.GetString("config")
 			approveOnly = viper.GetBool("approve")
