@@ -9,6 +9,11 @@ import (
 	"golang.org/x/oauth2"
 )
 
+const (
+	MergeLabel   = "gomerge-merged"
+	ApproveLabel = "gomerge-approved"
+)
+
 func Client(githubToken string, ctx context.Context) (client *github.Client) {
 	tokenSource := oauth2.StaticTokenSource(
 		&oauth2.Token{
@@ -35,6 +40,8 @@ func ApprovePullRequest(ghClient *github.Client, ctx context.Context, org, repo 
 		log.Fatalf("Could not approve pull request, did you try to approve your on pull request? - %v", err)
 	}
 
+	AddLabel(ghClient, ctx, org, repo, prId, ApproveLabel)
+
 	fmt.Printf("PR #%d: %v\n", prId, *review.State)
 }
 
@@ -44,7 +51,34 @@ func MergePullRequest(ghClient *github.Client, ctx context.Context, org, repo st
 		log.Fatal(err)
 	}
 
+	AddLabel(ghClient, ctx, org, repo, prId, MergeLabel)
+
 	fmt.Println(fmt.Sprintf("PR #%d: %v.", prId, *result.Message))
+}
+
+func AddLabel(ghClient *github.Client, ctx context.Context, org, repo string, prId int, label string) {
+	// Get label
+	_, _, err := ghClient.Issues.GetLabel(ctx, org, repo, label)
+
+	// If label does not exist, create it
+	if err != nil {
+		labelDesc := "Merged/Approved by Gomerge."
+		_, _, err := ghClient.Issues.CreateLabel(ctx, org, repo, &github.Label{
+			Name:        &label,
+			Description: &labelDesc,
+		})
+
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	// Add label
+	_, _, err = ghClient.Issues.AddLabelsToIssue(ctx, org, repo, prId, []string{label})
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func defaultCommitMsg() string {

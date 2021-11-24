@@ -2,6 +2,7 @@ package list
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -42,6 +43,7 @@ func NewCommand() (c *cobra.Command) {
 			approveOnly = viper.GetBool("approve")
 			mergeMethod := viper.GetString("merge-method")
 			flagToken := viper.GetString("token")
+			raw := viper.GetBool("raw")
 
 			if len(configFile) > 0 {
 				utils.ReadConfigFile(configFile)
@@ -76,6 +78,16 @@ func NewCommand() (c *cobra.Command) {
 					pullRequestsArray = append(pullRequestsArray, pullRequests...)
 				}
 
+				if raw {
+					prsAsJson, err := json.Marshal(pullRequestsArray)
+					if err != nil {
+						log.Fatal(err)
+					}
+					fmt.Println(string(prsAsJson))
+
+					os.Exit(0)
+				}
+
 				if len(pullRequestsArray) == 0 {
 					fmt.Println("No open pull requests found for configured repositories.")
 					os.Exit(0)
@@ -97,6 +109,17 @@ func NewCommand() (c *cobra.Command) {
 				pullRequests, _, err := ghClient.PullRequests.List(ctx, org, repo, nil)
 				if err != nil {
 					log.Fatal(err)
+				}
+
+				if raw {
+					prsAsJson, err := json.Marshal(pullRequests)
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					fmt.Println(string(prsAsJson))
+
+					os.Exit(0)
 				}
 
 				if len(pullRequests) == 0 {
