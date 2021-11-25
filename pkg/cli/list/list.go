@@ -44,6 +44,7 @@ func NewCommand() (c *cobra.Command) {
 			mergeMethod := viper.GetString("merge-method")
 			flagToken := viper.GetString("token")
 			raw := viper.GetBool("raw")
+			filters := viper.GetString("filters")
 
 			if len(configFile) > 0 {
 				utils.ReadConfigFile(configFile)
@@ -112,12 +113,45 @@ func NewCommand() (c *cobra.Command) {
 				}
 
 				if raw {
-					prsAsJson, err := json.Marshal(pullRequests)
-					if err != nil {
-						log.Fatal(err)
+					validPrs := []*github.PullRequest{}
+
+					for _, pr := range pullRequests {
+						status := gitclient.GetCommitStatus(ghClient, ctx, org, repo, *pr.Head.SHA)
+						singlePr, _, _ := ghClient.PullRequests.Get(ctx, org, repo, *pr.Number)
+						validStatus := (*status.State == "pending" && len(status.Statuses) == 0)
+
+						// Filter by clean PRs, valid CI, and filters
+						if *singlePr.State == "open" && *singlePr.MergeableState == "clean" && (*status.State == "success" || validStatus) && len(filters) == 0 {
+							validPrs = append(validPrs, singlePr)
+						} else if *singlePr.State == "open" && *singlePr.MergeableState == "clean" && (*status.State == "success" || validStatus) && len(filters) > 0 {
+							for _, filter := range strings.Split(filters, ",") {
+								if singlePr.Labels == nil {
+									continue
+								}
+
+								for _, label := range singlePr.Labels {
+									if *label.Name == filter {
+										validPrs = append(validPrs, singlePr)
+									}
+								}
+							}
+						}
 					}
 
-					fmt.Println(string(prsAsJson))
+					/* prsAsJson, err := json.Marshal(validPrs) */
+					/* if err != nil { */
+					/*   log.Fatal(err) */
+					/* } */
+					/*  */
+					/* fmt.Println(string(prsAsJson)) */
+					for _, pr := range validPrs {
+						if approveOnly {
+							fmt.Printf("PR #%d: Attempting to approve...\n", *pr.Number)
+							gitclient.ApprovePullRequest(ghClient, ctx, org, repo, *pr.Number)
+						} else {
+							gitclient.MergePullRequest(ghClient, ctx, org, repo, *pr.Number, mergeMethod)
+						}
+					}
 
 					os.Exit(0)
 				}

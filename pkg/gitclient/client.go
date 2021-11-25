@@ -14,6 +14,22 @@ const (
 	ApproveLabel = "gomerge-approved"
 )
 
+type MergeablePullRequest struct {
+	ID        int64
+	Number    int
+	Title     string
+	Mergeable bool
+	Labels    []string
+}
+
+type ApproveablePullRequest struct {
+	ID         int64
+	Number     int
+	Title      string
+	Approvable bool
+	Labels     []string
+}
+
 func Client(githubToken string, ctx context.Context) (client *github.Client) {
 	tokenSource := oauth2.StaticTokenSource(
 		&oauth2.Token{
@@ -79,6 +95,15 @@ func AddLabel(ghClient *github.Client, ctx context.Context, org, repo string, pr
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func GetCommitStatus(ghClient *github.Client, ctx context.Context, org, repo string, sha string) (status *github.CombinedStatus) {
+	status, _, err := ghClient.Repositories.GetCombinedStatus(ctx, org, repo, sha, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return
 }
 
 func defaultCommitMsg() string {
