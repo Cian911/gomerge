@@ -34,6 +34,12 @@ sudo tar -xvf gomerge_2.2.0_Linux_x86_64.tar.gz -C /usr/local/bin/
 sudo chmod +x /usr/local/bin/gomerge
 ```
 
+Via `go install`.
+
+```bash
+go install github.com/cian911/go-merge/cmd/gomerge@latest
+```
+
 ###### Upgrade
 
 If you have the tool installed already via homebrew, you can upgrade by running the following:
