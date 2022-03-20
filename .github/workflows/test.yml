@@ -23,7 +23,7 @@ jobs:
         go-version: '~1.18'
     - name: Install Dependencies
       run: |
-        go get github.com/rakyll/gotest
+        go install github.com/rakyll/gotest
     - name: Test
       run: |
         make test-all
