@@ -23,7 +23,7 @@ jobs:
         go-version: '~1.18'
     - name: Install Dependencies
       run: |
-        go get github.com/rakyll/gotest
+        curl https://gotest-release.s3.amazonaws.com/gotest_linux > gotest && chmod +x gotest
     - name: Test
       run: |
         make test-all
