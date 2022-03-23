@@ -3,7 +3,7 @@ module github.com/cian911/go-merge
 go 1.16
 
 require (
-	github.com/AlecAivazis/survey/v2 v2.3.2
+	github.com/AlecAivazis/survey/v2 v2.3.4
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/mattn/go-runewidth v0.0.12 // indirect
