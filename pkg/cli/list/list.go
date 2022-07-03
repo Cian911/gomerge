@@ -41,6 +41,7 @@ func NewCommand() (c *cobra.Command) {
 			approveOnly = viper.GetBool("approve")
 			mergeMethod := viper.GetString("merge-method")
 			flagToken := viper.GetString("token")
+			skip := viper.GetBool("skip")
 
 			if len(configFile) > 0 {
 				utils.ReadConfigFile(configFile)
@@ -85,9 +86,9 @@ func NewCommand() (c *cobra.Command) {
 					p := parsePrId(id)
 					prId, _ := strconv.Atoi(p[0])
 					if approveOnly {
-						gitclient.ApprovePullRequest(ghClient, ctx, org, repo, prId)
+						gitclient.ApprovePullRequest(ghClient, ctx, org, repo, prId, skip)
 					} else {
-						gitclient.MergePullRequest(ghClient, ctx, org, p[1], prId, mergeMethod)
+						gitclient.MergePullRequest(ghClient, ctx, org, p[1], prId, mergeMethod, skip)
 					}
 				}
 			} else {
@@ -108,9 +109,9 @@ func NewCommand() (c *cobra.Command) {
 					p := parsePrId(id)
 					prId, _ := strconv.Atoi(p[0])
 					if approveOnly {
-						gitclient.ApprovePullRequest(ghClient, ctx, org, repo, prId)
+						gitclient.ApprovePullRequest(ghClient, ctx, org, repo, prId, skip)
 					} else {
-						gitclient.MergePullRequest(ghClient, ctx, org, repo, prId, mergeMethod)
+						gitclient.MergePullRequest(ghClient, ctx, org, repo, prId, mergeMethod, skip)
 					}
 				}
 			}
