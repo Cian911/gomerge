@@ -21,7 +21,7 @@ func Client(githubToken string, ctx context.Context) (client *github.Client) {
 	return
 }
 
-func ApprovePullRequest(ghClient *github.Client, ctx context.Context, org, repo string, prId int) {
+func ApprovePullRequest(ghClient *github.Client, ctx context.Context, org, repo string, prId int, skip bool) {
 	// Create review
 	t := defaultApproveMsg(prId)
 	e := "APPROVE"
@@ -30,18 +30,21 @@ func ApprovePullRequest(ghClient *github.Client, ctx context.Context, org, repo 
 		Event: &e,
 	}
 	review, _, err := ghClient.PullRequests.CreateReview(ctx, org, repo, prId, reviewRequest)
-	if err != nil {
-		// TODO: Parse error to check if user tried to approve their own PR..
+	if err != nil && !skip {
 		log.Fatalf("Could not approve pull request, did you try to approve your on pull request? - %v", err)
+	} else {
+		log.Printf("Could not approve pull request, did you try to approve your on pull request? Skipping: %v \n", err)
 	}
 
 	fmt.Printf("PR #%d: %v\n", prId, *review.State)
 }
 
-func MergePullRequest(ghClient *github.Client, ctx context.Context, org, repo string, prId int, mergeMethod string) {
+func MergePullRequest(ghClient *github.Client, ctx context.Context, org, repo string, prId int, mergeMethod string, skip bool) {
 	result, _, err := ghClient.PullRequests.Merge(ctx, org, repo, prId, defaultCommitMsg(), &github.PullRequestOptions{MergeMethod: mergeMethod})
-	if err != nil {
+	if err != nil && !skip {
 		log.Fatal(err)
+	} else {
+		log.Printf("Could not merge PR #%d, skipping: %v\n", prId, err)
 	}
 
 	fmt.Println(fmt.Sprintf("PR #%d: %v.", prId, *result.Message))
