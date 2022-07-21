@@ -11,7 +11,7 @@ import (
 	"github.com/cian911/go-merge/pkg/gitclient"
 	"github.com/cian911/go-merge/pkg/printer"
 	"github.com/cian911/go-merge/pkg/utils"
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v45/github"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -42,6 +42,7 @@ func NewCommand() (c *cobra.Command) {
 			mergeMethod := viper.GetString("merge-method")
 			flagToken := viper.GetString("token")
 			skip := viper.GetBool("skip")
+			closePr := viper.GetBool("close")
 
 			if len(configFile) > 0 {
 				utils.ReadConfigFile(configFile)
@@ -82,11 +83,13 @@ func NewCommand() (c *cobra.Command) {
 				}
 
 				selectedIds := promptAndFormat(pullRequestsArray, table)
-				for _, id := range selectedIds {
+				for x, id := range selectedIds {
 					p := parsePrId(id)
 					prId, _ := strconv.Atoi(p[0])
 					if approveOnly {
 						gitclient.ApprovePullRequest(ghClient, ctx, org, repo, prId, skip)
+					} else if closePr {
+						gitclient.ClosePullRequest(ghClient, ctx, org, repo, prId, pullRequestsArray[x])
 					} else {
 						gitclient.MergePullRequest(ghClient, ctx, org, p[1], prId, mergeMethod, skip)
 					}
@@ -105,11 +108,13 @@ func NewCommand() (c *cobra.Command) {
 				}
 
 				selectedIds := promptAndFormat(pullRequests, table)
-				for _, id := range selectedIds {
+				for x, id := range selectedIds {
 					p := parsePrId(id)
 					prId, _ := strconv.Atoi(p[0])
 					if approveOnly {
 						gitclient.ApprovePullRequest(ghClient, ctx, org, repo, prId, skip)
+					} else if closePr {
+						gitclient.ClosePullRequest(ghClient, ctx, org, repo, prId, pullRequests[x])
 					} else {
 						gitclient.MergePullRequest(ghClient, ctx, org, repo, prId, mergeMethod, skip)
 					}

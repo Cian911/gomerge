@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/cian911/go-merge/pkg/printer"
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v45/github"
 	"github.com/olekukonko/tablewriter"
 	"github.com/stretchr/testify/assert"
 )

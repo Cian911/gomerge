@@ -19,6 +19,7 @@ func New() (c *cobra.Command) {
 	c.PersistentFlags().BoolP("approve", "a", false, "Pass an optional approve flag as an argument which will only approve and not merge selected repos.")
 	c.PersistentFlags().StringP("merge-method", "m", "", "Pass an optional merge method for the pull request (merge [default], squash, rebase).")
 	c.PersistentFlags().BoolP("skip", "s", false, "Pass an optional flag to skip a pull request and continue if one or more are not mergable.")
+	c.PersistentFlags().BoolP("close", "", false, "Pass an optional argument to close a pull request.")
 
 	c.MarkFlagRequired("token")
 
@@ -28,6 +29,7 @@ func New() (c *cobra.Command) {
 	viper.BindPFlag("approve", c.PersistentFlags().Lookup("approve"))
 	viper.BindPFlag("merge-method", c.PersistentFlags().Lookup("merge-method"))
 	viper.BindPFlag("skip", c.PersistentFlags().Lookup("skip"))
+	viper.BindPFlag("close", c.PersistentFlags().Lookup("close"))
 
 	c.AddCommand(list.NewCommand())
 	c.AddCommand(version.NewCommand())

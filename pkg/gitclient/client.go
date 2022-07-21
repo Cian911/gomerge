@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v45/github"
 	"golang.org/x/oauth2"
 )
 
@@ -48,6 +48,16 @@ func MergePullRequest(ghClient *github.Client, ctx context.Context, org, repo st
 	}
 
 	fmt.Println(fmt.Sprintf("PR #%d: %v.", prId, *result.Message))
+}
+
+func ClosePullRequest(ghClient *github.Client, ctx context.Context, org, repo string, prId int, prRef *github.PullRequest) {
+	// Set Closed state for PR
+	*prRef.State = "closed"
+	result, _, err := ghClient.PullRequests.Edit(ctx, org, repo, prId, prRef)
+	if err != nil {
+		log.Printf("Could not close PR #%d - %v", prId, err)
+	}
+	fmt.Println(fmt.Sprintf("PR #%d: %v.", prId, *result.State))
 }
 
 func defaultCommitMsg() string {
