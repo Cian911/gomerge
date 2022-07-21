@@ -52,19 +52,23 @@ Usage:
   gomerge [command]
 
 Available Commands:
+  completion  Generate the autocompletion script for the specified shell
   help        Help about any command
   list        List all open pull request for a repository you wish to merge.
   version     Prints the current version and build information.
 
 Flags:
   -a, --approve               Pass an optional approve flag as an argument which will only approve and not merge selected repos.
+      --close                 Pass an optional argument to close a pull request.
   -c, --config string         Pass an optional config file as an argument with list of repositories.
   -h, --help                  help for gomerge
   -m, --merge-method string   Pass an optional merge method for the pull request (merge [default], squash, rebase).
   -r, --repo string           Pass name of repository as argument (organization/repo).
+  -s, --skip                  Pass an optional flag to skip a pull request and continue if one or more are not mergable.
   -t, --token string          Pass your github personal access token (PAT).
 
 Use "gomerge [command] --help" for more information about a command.
+
 ```
 
 To get a list of open and active pull requests for a given repo, you can run the following command. Note, this will list all available PRs for merging, if you want to just approve a list of PRs, then add the `-a` to the below command too.
