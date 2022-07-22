@@ -29,8 +29,8 @@ gomerge -h
 To install the compiled binary, you can go to the releases tab, and download the version most suitable to your environment. An example of such is below.
 
 ```bash
-wget https://github.com/Cian911/gomerge/releases/download/2.2.0/gomerge_2.2.0_Linux_x86_64.tar.gz
-sudo tar -xvf gomerge_2.2.0_Linux_x86_64.tar.gz -C /usr/local/bin/
+wget https://github.com/Cian911/gomerge/releases/download/3.0.0/gomerge_3.0.0_Linux_x86_64.tar.gz
+sudo tar -xvf gomerge_3.0.0_Linux_x86_64.tar.gz -C /usr/local/bin/
 sudo chmod +x /usr/local/bin/gomerge
 ```
 
@@ -91,7 +91,7 @@ From here, follow the instructions to select which pull request you wish to merg
 PR #3: Pull Request successfully merged.
 ```
 
-##### Bulk Merging/Approving Pull Requests
+##### Bulk Merging/Approving/Closing Pull Requests
 
 You should first create a `config.yaml` file in the following format.
 
@@ -112,6 +112,12 @@ And again, if you just wish to approve a list of available PRs, just add the `-a
 
 ```bash
 gomerge list -t $GITHUB_TOKEN -c config.yaml -a
+```
+
+And finally, if you wish to close a list of PRs, just add `--close`
+
+```bash
+gomerge list -t $GITHUB_TOKEN -c config.yaml --close
 ```
 
 You should see a list of active and open pull requets from the repositories you have defined in your configuration file.
