@@ -43,6 +43,7 @@ func NewCommand() (c *cobra.Command) {
 			flagToken := viper.GetString("token")
 			skip := viper.GetBool("skip")
 			closePr := viper.GetBool("close")
+			enterpriseUrl := viper.GetString("enterprise-base-url")
 
 			if len(configFile) > 0 {
 				utils.ReadConfigFile(configFile)
@@ -59,7 +60,12 @@ func NewCommand() (c *cobra.Command) {
 				log.Fatal(err)
 			}
 
-			ghClient := gitclient.Client(token, ctx)
+			isEnterprise := false
+			if len(enterpriseUrl) > 0 {
+				isEnterprise = true
+			}
+
+			ghClient := gitclient.Client(token, ctx, isEnterprise)
 			pullRequestsArray := []*github.PullRequest{}
 			table := initTable()
 

@@ -6,17 +6,31 @@ import (
 	"log"
 
 	"github.com/google/go-github/v45/github"
+	"github.com/spf13/viper"
 	"golang.org/x/oauth2"
 )
 
-func Client(githubToken string, ctx context.Context) (client *github.Client) {
+func Client(githubToken string, ctx context.Context, isEnterprise bool) (client *github.Client) {
 	tokenSource := oauth2.StaticTokenSource(
 		&oauth2.Token{
 			AccessToken: githubToken,
 		},
 	)
+
 	tokenContext := oauth2.NewClient(ctx, tokenSource)
-	client = github.NewClient(tokenContext)
+
+	if isEnterprise {
+		baseUrl := viper.GetString("enterprise-base-url")
+		c, err := github.NewEnterpriseClient(baseUrl, baseUrl, tokenContext)
+
+		if err != nil {
+			log.Fatalf("Could not auth enterprise client: %v", err)
+		}
+
+		client = c
+	} else {
+		client = github.NewClient(tokenContext)
+	}
 
 	return
 }
