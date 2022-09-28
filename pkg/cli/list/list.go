@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/cian911/go-merge/pkg/gitclient"
@@ -44,6 +45,7 @@ func NewCommand() (c *cobra.Command) {
 			skip := viper.GetBool("skip")
 			closePr := viper.GetBool("close")
 			enterpriseUrl := viper.GetString("enterprise-base-url")
+			delay := viper.GetInt("delay")
 
 			if len(configFile) > 0 {
 				utils.ReadConfigFile(configFile)
@@ -98,6 +100,9 @@ func NewCommand() (c *cobra.Command) {
 						gitclient.ClosePullRequest(ghClient, ctx, org, repo, prId, pullRequestsArray[x])
 					} else {
 						gitclient.MergePullRequest(ghClient, ctx, org, p[1], prId, mergeMethod, skip)
+
+						// delay between merges to allow other active PRs to get synced
+						time.Sleep(time.Duration(delay) * time.Second)
 					}
 				}
 			} else {

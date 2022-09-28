@@ -70,8 +70,9 @@ func ClosePullRequest(ghClient *github.Client, ctx context.Context, org, repo st
 	result, _, err := ghClient.PullRequests.Edit(ctx, org, repo, prId, prRef)
 	if err != nil {
 		log.Printf("Could not close PR #%d - %v", prId, err)
+	} else {
+		fmt.Println(fmt.Sprintf("PR #%d: %v.", prId, *result.State))
 	}
-	fmt.Println(fmt.Sprintf("PR #%d: %v.", prId, *result.State))
 }
 
 func defaultCommitMsg() string {

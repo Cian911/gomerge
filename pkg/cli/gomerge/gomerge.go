@@ -20,6 +20,7 @@ func New() (c *cobra.Command) {
 	c.PersistentFlags().StringP("merge-method", "m", "", "Pass an optional merge method for the pull request (merge [default], squash, rebase).")
 	c.PersistentFlags().BoolP("skip", "s", false, "Pass an optional flag to skip a pull request and continue if one or more are not mergable.")
 	c.PersistentFlags().BoolP("close", "", false, "Pass an optional argument to close a pull request.")
+	c.PersistentFlags().IntP("delay", "d", 6, "Set the value of delay, which will determine how long to wait between mergeing pull requests. Default is (6) seconds.")
 	c.PersistentFlags().StringP("enterprise-base-url", "e", "", "For Github Enterprise users, you can pass your enterprise base. Format: http(s)://[hostname]/")
 
 	c.MarkFlagRequired("token")
@@ -30,6 +31,7 @@ func New() (c *cobra.Command) {
 	viper.BindPFlag("approve", c.PersistentFlags().Lookup("approve"))
 	viper.BindPFlag("merge-method", c.PersistentFlags().Lookup("merge-method"))
 	viper.BindPFlag("skip", c.PersistentFlags().Lookup("skip"))
+	viper.BindPFlag("delay", c.PersistentFlags().Lookup("delay"))
 	viper.BindPFlag("close", c.PersistentFlags().Lookup("close"))
 	viper.BindPFlag("enterprise-base-url", c.PersistentFlags().Lookup("enterprise-base-url"))
 
