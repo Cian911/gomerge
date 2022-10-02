@@ -55,10 +55,10 @@ func ApprovePullRequest(ghClient *github.Client, ctx context.Context, org, repo 
 
 func MergePullRequest(ghClient *github.Client, ctx context.Context, org, repo string, prId int, mergeMethod string, skip bool) {
 	result, _, err := ghClient.PullRequests.Merge(ctx, org, repo, prId, defaultCommitMsg(), &github.PullRequestOptions{MergeMethod: mergeMethod})
-	if err != nil && !skip {
-		log.Fatal(err)
-	} else {
+	if err != nil {
 		log.Printf("Could not merge PR #%d, skipping: %v\n", prId, err)
+
+		return
 	}
 
 	fmt.Println(fmt.Sprintf("PR #%d: %v.", prId, *result.Message))

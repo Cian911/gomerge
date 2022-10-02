@@ -128,6 +128,9 @@ func NewCommand() (c *cobra.Command) {
 						gitclient.ClosePullRequest(ghClient, ctx, org, repo, prId, pullRequests[x])
 					} else {
 						gitclient.MergePullRequest(ghClient, ctx, org, repo, prId, mergeMethod, skip)
+
+						// delay between merges to allow other active PRs to get synced
+						time.Sleep(time.Duration(delay) * time.Second)
 					}
 				}
 			}
