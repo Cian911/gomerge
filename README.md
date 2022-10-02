@@ -29,8 +29,8 @@ gomerge -h
 To install the compiled binary, you can go to the releases tab, and download the version most suitable to your environment. An example of such is below.
 
 ```bash
-wget https://github.com/Cian911/gomerge/releases/download/3.0.0/gomerge_3.0.0_Linux_x86_64.tar.gz
-sudo tar -xvf gomerge_3.0.0_Linux_x86_64.tar.gz -C /usr/local/bin/
+wget https://github.com/Cian911/gomerge/releases/download/3.1.0/gomerge_3.1.0_Linux_x86_64.tar.gz
+sudo tar -xvf gomerge_3.1.0_Linux_x86_64.tar.gz -C /usr/local/bin/
 sudo chmod +x /usr/local/bin/gomerge
 ```
 
@@ -58,17 +58,18 @@ Available Commands:
   version     Prints the current version and build information.
 
 Flags:
-  -a, --approve               Pass an optional approve flag as an argument which will only approve and not merge selected repos.
-      --close                 Pass an optional argument to close a pull request.
-  -c, --config string         Pass an optional config file as an argument with list of repositories.
-  -h, --help                  help for gomerge
-  -m, --merge-method string   Pass an optional merge method for the pull request (merge [default], squash, rebase).
-  -r, --repo string           Pass name of repository as argument (organization/repo).
-  -s, --skip                  Pass an optional flag to skip a pull request and continue if one or more are not mergable.
-  -t, --token string          Pass your github personal access token (PAT).
+  -a, --approve                      Pass an optional approve flag as an argument which will only approve and not merge selected repos.
+      --close                        Pass an optional argument to close a pull request.
+  -c, --config string                Pass an optional config file as an argument with list of repositories.
+  -d, --delay int                    Set the value of delay, which will determine how long to wait between mergeing pull requests. Default is (6) seconds. (default 6)
+  -e, --enterprise-base-url string   For Github Enterprise users, you can pass your enterprise base. Format: http(s)://[hostname]/
+  -h, --help                         help for gomerge
+  -m, --merge-method string          Pass an optional merge method for the pull request (merge [default], squash, rebase).
+  -r, --repo string                  Pass name of repository as argument (organization/repo).
+  -s, --skip                         Pass an optional flag to skip a pull request and continue if one or more are not mergable.
+  -t, --token string                 Pass your github personal access token (PAT).
 
 Use "gomerge [command] --help" for more information about a command.
-
 ```
 
 To get a list of open and active pull requests for a given repo, you can run the following command. Note, this will list all available PRs for merging, if you want to just approve a list of PRs, then add the `-a` to the below command too.
