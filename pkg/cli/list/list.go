@@ -95,9 +95,9 @@ func NewCommand() (c *cobra.Command) {
 					p := parsePrId(id)
 					prId, _ := strconv.Atoi(p[0])
 					if approveOnly {
-						gitclient.ApprovePullRequest(ghClient, ctx, org, repo, prId, skip)
+						gitclient.ApprovePullRequest(ghClient, ctx, org, p[1], prId, skip)
 					} else if closePr {
-						gitclient.ClosePullRequest(ghClient, ctx, org, repo, prId, pullRequestsArray[x])
+						gitclient.ClosePullRequest(ghClient, ctx, org, p[1], prId, pullRequestsArray[x])
 					} else {
 						gitclient.MergePullRequest(ghClient, ctx, org, p[1], prId, mergeMethod, skip)
 
