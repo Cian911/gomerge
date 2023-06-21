@@ -9,7 +9,7 @@ require (
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/spf13/cobra v1.6.1
-	github.com/spf13/viper v1.14.0
-	github.com/stretchr/testify v1.8.1
+	github.com/spf13/viper v1.16.0
+	github.com/stretchr/testify v1.8.3
 	golang.org/x/oauth2 v0.9.0
 )
