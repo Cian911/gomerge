@@ -151,7 +151,7 @@ func promptAndFormat(pullRequests []*github.PullRequest, table *tablewriter.Tabl
 		} else {
 			repoName = *pr.Head.Repo.Name
 		}
-		prIds = append(prIds, fmt.Sprintf("%d | %s", *pr.Number, repoName))
+		prIds = append(prIds, fmt.Sprintf("%d | %s | %s", *pr.Number, repoName, *pr.User.Login))
 		data = formatTable(pr, org, repoName)
 		if len(data) == 0 {
 			// If there is an issue with the pr, skip
@@ -173,6 +173,7 @@ func initTable() (table *tablewriter.Table) {
 			"State",
 			"Title",
 			"Repository",
+			"Author",
 			"Created",
 		},
 	)
@@ -189,6 +190,7 @@ func formatTable(pr *github.PullRequest, org, repo string) (data []string) {
 		printer.FormatString(pr.State),
 		printer.FormatString(pr.Title),
 		fmt.Sprintf("%s/%s", org, repo),
+		*pr.User.Login,
 		printer.FormatTime(pr.CreatedAt),
 	}
 
