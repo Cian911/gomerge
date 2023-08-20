@@ -37,7 +37,12 @@ func Client(githubToken string, ctx context.Context, isEnterprise bool) (client 
 
 func ApprovePullRequest(ghClient *github.Client, ctx context.Context, org, repo string, prId int, skip bool) {
 	// Create review
-	t := defaultApproveMsg(prId)
+  t := ""
+  if viper.IsSet("commit-msg") {
+    t = viper.GetString("commit-msg")
+  } else {
+    t = defaultApproveMsg(prId)
+  }
 	e := "APPROVE"
 	reviewRequest := &github.PullRequestReviewRequest{
 		Body:  &t,
