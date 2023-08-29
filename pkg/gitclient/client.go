@@ -81,5 +81,5 @@ func defaultCommitMsg() string {
 }
 
 func DefaultApproveMsg() string {
-	return fmt.Sprint(`PR has been approved by [GoMerge](https://github.com/Cian911/gomerge) tool. :rocket:`)
+	return `PR has been approved by [GoMerge](https://github.com/Cian911/gomerge) tool. :rocket:`
 }
