@@ -37,17 +37,13 @@ func Client(githubToken string, ctx context.Context, isEnterprise bool) (client 
 
 func ApprovePullRequest(ghClient *github.Client, ctx context.Context, org, repo string, prId int, skip bool) {
 	// Create review
-  t := ""
-  if viper.IsSet("commit-msg") {
-    t = viper.GetString("commit-msg")
-  } else {
-    t = defaultApproveMsg(prId)
-  }
+  commitMsg := ctx.Value("message").(string)
 	e := "APPROVE"
 	reviewRequest := &github.PullRequestReviewRequest{
-		Body:  &t,
+		Body:  &commitMsg,
 		Event: &e,
 	}
+
 	review, _, err := ghClient.PullRequests.CreateReview(ctx, org, repo, prId, reviewRequest)
 	if err != nil && !skip {
 		log.Fatalf("Could not approve pull request, did you try to approve your on pull request? - %v", err)
@@ -84,6 +80,6 @@ func defaultCommitMsg() string {
 	return "Merged by gomerge CLI."
 }
 
-func defaultApproveMsg(prId int) string {
-	return fmt.Sprintf(`PR #%d has been approved by [GoMerge](https://github.com/Cian911/gomerge) tool. :rocket:`, prId)
+func DefaultApproveMsg() string {
+	return fmt.Sprint(`PR has been approved by [GoMerge](https://github.com/Cian911/gomerge) tool. :rocket:`)
 }
