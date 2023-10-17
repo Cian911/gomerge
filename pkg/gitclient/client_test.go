@@ -17,9 +17,8 @@ func TestDefaultCommitMsg(t *testing.T) {
 
 func TestDefaultApproveMsg(t *testing.T) {
 	t.Run("It returns a default approve message.", func(t *testing.T) {
-		prId := 1
-		got := defaultApproveMsg(prId)
-		want := "PR #1 has been approved by [GoMerge](https://github.com/Cian911/gomerge) tool. :rocket:"
+		got := DefaultApproveMsg()
+		want := "PR has been approved by [GoMerge](https://github.com/Cian911/gomerge) tool. :rocket:"
 
 		if got != want {
 			t.Errorf("got %s, want %s", got, want)

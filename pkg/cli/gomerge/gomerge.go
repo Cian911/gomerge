@@ -22,6 +22,7 @@ func New() (c *cobra.Command) {
 	c.PersistentFlags().BoolP("close", "", false, "Pass an optional argument to close a pull request.")
 	c.PersistentFlags().IntP("delay", "d", 6, "Set the value of delay, which will determine how long to wait between mergeing pull requests. Default is (6) seconds.")
 	c.PersistentFlags().StringP("enterprise-base-url", "e", "", "For Github Enterprise users, you can pass your enterprise base. Format: http(s)://[hostname]/")
+  c.PersistentFlags().StringP("commit-msg", "", "", "Add a custom message when approving a pull request.")
 
 	c.MarkFlagRequired("token")
 
@@ -34,6 +35,7 @@ func New() (c *cobra.Command) {
 	viper.BindPFlag("delay", c.PersistentFlags().Lookup("delay"))
 	viper.BindPFlag("close", c.PersistentFlags().Lookup("close"))
 	viper.BindPFlag("enterprise-base-url", c.PersistentFlags().Lookup("enterprise-base-url"))
+  viper.BindPFlag("commit-msg", c.PersistentFlags().Lookup("commit-msg"))
 
 	c.AddCommand(list.NewCommand())
 	c.AddCommand(version.NewCommand())

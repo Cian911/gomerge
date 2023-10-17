@@ -1,6 +1,7 @@
 package list
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -70,6 +71,7 @@ func NewCommand() (c *cobra.Command) {
 			ghClient := gitclient.Client(token, ctx, isEnterprise)
 			pullRequestsArray := []*github.PullRequest{}
 			table := initTable()
+      ctx = commitMsg(ctx, viper.GetString("commit-msg"))
 
 			// If user has passed a config file
 			if configPresent {
@@ -243,4 +245,12 @@ func selectPrIds(prIds []string) (*survey.MultiSelect, []string) {
 	}
 
 	return prompt, selectedIds
+}
+
+func commitMsg(ctx context.Context, msg string) context.Context {
+  if len(msg) != 0 {
+    return context.WithValue(ctx, "message", msg)
+  }
+
+  return context.WithValue(ctx, "message", gitclient.DefaultApproveMsg())
 }
