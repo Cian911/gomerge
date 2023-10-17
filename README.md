@@ -29,8 +29,8 @@ gomerge -h
 To install the compiled binary, you can go to the releases tab, and download the version most suitable to your environment. An example of such is below.
 
 ```bash
-wget https://github.com/Cian911/gomerge/releases/download/3.2.1/gomerge_3.2.1_Linux_x86_64.tar.gz
-sudo tar -xvf gomerge_3.2.1_Linux_x86_64.tar.gz -C /usr/local/bin/
+wget https://github.com/Cian911/gomerge/releases/download/3.3.0/gomerge_3.3.0_Linux_x86_64.tar.gz
+sudo tar -xvf gomerge_3.3.0_Linux_x86_64.tar.gz -C /usr/local/bin/
 sudo chmod +x /usr/local/bin/gomerge
 ```
 
@@ -60,6 +60,7 @@ Available Commands:
 Flags:
   -a, --approve                      Pass an optional approve flag as an argument which will only approve and not merge selected repos.
       --close                        Pass an optional argument to close a pull request.
+      --commit-msg string            Add a custom message when approving a pull request.
   -c, --config string                Pass an optional config file as an argument with list of repositories.
   -d, --delay int                    Set the value of delay, which will determine how long to wait between mergeing pull requests. Default is (6) seconds. (default 6)
   -e, --enterprise-base-url string   For Github Enterprise users, you can pass your enterprise base. Format: http(s)://[hostname]/
