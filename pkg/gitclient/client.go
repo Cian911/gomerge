@@ -37,20 +37,22 @@ func Client(githubToken string, ctx context.Context, isEnterprise bool) (client 
 
 func ApprovePullRequest(ghClient *github.Client, ctx context.Context, org, repo string, prId int, skip bool) {
 	// Create review
-	t := defaultApproveMsg(prId)
+  commitMsg := ctx.Value("message").(string)
 	e := "APPROVE"
 	reviewRequest := &github.PullRequestReviewRequest{
-		Body:  &t,
+		Body:  &commitMsg,
 		Event: &e,
 	}
 	review, _, err := ghClient.PullRequests.CreateReview(ctx, org, repo, prId, reviewRequest)
 	if err != nil && !skip {
 		log.Fatalf("Could not approve pull request, did you try to approve your on pull request? - %v", err)
-	} else {
-		log.Printf("Could not approve pull request, did you try to approve your on pull request? Skipping: %v \n", err)
-	}
+	} 
 
-	fmt.Printf("PR #%d: %v\n", prId, *review.State)
+  if err != nil && skip {
+    fmt.Printf("Could not approve pull request, skipping.")
+  } else {
+    fmt.Printf("PR #%d: %v\n", prId, *review.State)
+  }
 }
 
 func MergePullRequest(ghClient *github.Client, ctx context.Context, org, repo string, prId int, mergeMethod string, skip bool) {
@@ -61,7 +63,7 @@ func MergePullRequest(ghClient *github.Client, ctx context.Context, org, repo st
 		return
 	}
 
-	fmt.Println(fmt.Sprintf("PR #%d: %v.", prId, *result.Message))
+	fmt.Sprintf("PR #%d: %v.\n", prId, *result.Message)
 }
 
 func ClosePullRequest(ghClient *github.Client, ctx context.Context, org, repo string, prId int, prRef *github.PullRequest) {
@@ -71,7 +73,7 @@ func ClosePullRequest(ghClient *github.Client, ctx context.Context, org, repo st
 	if err != nil {
 		log.Printf("Could not close PR #%d - %v", prId, err)
 	} else {
-		fmt.Println(fmt.Sprintf("PR #%d: %v.", prId, *result.State))
+		fmt.Sprintf("PR #%d: %v.\n", prId, *result.State)
 	}
 }
 
@@ -79,6 +81,6 @@ func defaultCommitMsg() string {
 	return "Merged by gomerge CLI."
 }
 
-func defaultApproveMsg(prId int) string {
-	return fmt.Sprintf(`PR #%d has been approved by [GoMerge](https://github.com/Cian911/gomerge) tool. :rocket:`, prId)
+func DefaultApproveMsg() string {
+	return `PR has been approved by [GoMerge](https://github.com/Cian911/gomerge) tool. :rocket:`
 }

@@ -24,10 +24,10 @@ build-run: build
 test-all: test-cli test-client test-utils
 
 test-cli:
-	@gotest -v ${PKG}/pkg/cli/list
+	@go test -v ${PKG}/pkg/cli/list
 
 test-client:
-	@gotest -v ${PKG}/pkg/gitclient
+	@go test -v ${PKG}/pkg/gitclient
 
 test-utils:
-	@gotest -v ${PKG}/pkg/utils
+	@go test -v ${PKG}/pkg/utils
