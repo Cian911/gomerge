@@ -1,4 +1,4 @@
-package gitclient
+package gclient
 
 import (
 	"testing"

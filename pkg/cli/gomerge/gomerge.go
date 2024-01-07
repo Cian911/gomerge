@@ -37,7 +37,7 @@ func New() (c *cobra.Command) {
 	viper.BindPFlag("enterprise-base-url", c.PersistentFlags().Lookup("enterprise-base-url"))
   viper.BindPFlag("commit-msg", c.PersistentFlags().Lookup("commit-msg"))
 
-	c.AddCommand(list.NewCommand())
+	// c.AddCommand(list.NewCommand())
 	c.AddCommand(version.NewCommand())
 
 	return
