@@ -9,6 +9,9 @@ builds:
     - -X main.Version={{ .Version }}
     - -X main.Build={{ .Commit }}
     - -X main.BuildDate={{ .Date }}
+    - -X main.Kofi=https://ko-fi.com/cian911
+    - -X main.BMAC=https://buymeacoffee.com/cian_911
+    - -X main.Github=https://github.com/sponsors/Cian911
   goos:
     - linux
     - windows

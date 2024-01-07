@@ -11,12 +11,18 @@ var (
 	Version   string
 	Build     string
 	BuildDate string
+  Kofi string
+  BMAC string
+  Github string
 )
 
 func main() {
 	version.Version = Version
 	version.Build = Build
 	version.BuildDate = BuildDate
+  version.Kofi = Kofi
+  version.BMAC = BMAC
+  version.Github = Github
 
 	ctx := context.Background()
 	gomerge.New().ExecuteContext(ctx)
