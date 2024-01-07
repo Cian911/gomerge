@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/cian911/go-merge/pkg/printer"
-	"github.com/google/go-github/v45/github"
+	"github.com/google/go-github/v57/github"
 	"github.com/olekukonko/tablewriter"
 	"github.com/stretchr/testify/assert"
 )
@@ -46,7 +46,7 @@ func TestFormatTable(t *testing.T) {
 		number := 1
 		state := "#open"
 		title := "My Pr"
-		createdAt := time.Now()
+		createdAt := github.Timestamp{ time.Now() }
 
 		pr := &github.PullRequest{
 			Number:    &number,
@@ -61,7 +61,7 @@ func TestFormatTable(t *testing.T) {
 			"#open",
 			"My Pr",
 			"Cian911/syncwave",
-			printer.FormatTime(pr.CreatedAt),
+			printer.FormatTime(pr.CreatedAt.GetTime()),
 		}
 
 		assert.Equal(t, got, want)

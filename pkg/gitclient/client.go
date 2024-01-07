@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/google/go-github/v45/github"
+	"github.com/google/go-github/v57/github"
 	"github.com/spf13/viper"
 	"golang.org/x/oauth2"
 )
