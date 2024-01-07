@@ -13,7 +13,7 @@ import (
 	"github.com/cian911/go-merge/pkg/gitclient"
 	"github.com/cian911/go-merge/pkg/printer"
 	"github.com/cian911/go-merge/pkg/utils"
-	"github.com/google/go-github/v45/github"
+	"github.com/google/go-github/v56/github"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -71,7 +71,7 @@ func NewCommand() (c *cobra.Command) {
 			ghClient := gitclient.Client(token, ctx, isEnterprise)
 			pullRequestsArray := []*github.PullRequest{}
 			table := initTable()
-      ctx = commitMsg(ctx, viper.GetString("commit-msg"))
+			ctx = commitMsg(ctx, viper.GetString("commit-msg"))
 
 			// If user has passed a config file
 			if configPresent {
@@ -191,7 +191,7 @@ func formatTable(pr *github.PullRequest, org, repo string) (data []string) {
 		printer.FormatString(pr.State),
 		printer.FormatString(pr.Title),
 		fmt.Sprintf("%s/%s", org, repo),
-		printer.FormatTime(pr.CreatedAt),
+		printer.FormatTime(pr.CreatedAt.GetTime()),
 	}
 
 	return
@@ -248,9 +248,9 @@ func selectPrIds(prIds []string) (*survey.MultiSelect, []string) {
 }
 
 func commitMsg(ctx context.Context, msg string) context.Context {
-  if len(msg) != 0 {
-    return context.WithValue(ctx, "message", msg)
-  }
+	if len(msg) != 0 {
+		return context.WithValue(ctx, "message", msg)
+	}
 
-  return context.WithValue(ctx, "message", gitclient.DefaultApproveMsg())
+	return context.WithValue(ctx, "message", gitclient.DefaultApproveMsg())
 }
