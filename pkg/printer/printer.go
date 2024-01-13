@@ -18,6 +18,7 @@ func HeaderStyle(t *tablewriter.Table) *tablewriter.Table {
 		tablewriter.Colors{tablewriter.Bold},
 		tablewriter.Colors{tablewriter.Bold},
 		tablewriter.Colors{tablewriter.Bold},
+		tablewriter.Colors{tablewriter.Bold},
 		tablewriter.Colors{tablewriter.Bold})
 	return t
 }
