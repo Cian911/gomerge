@@ -1,6 +1,7 @@
 package gomerge
 
 import (
+	// "github.com/cian911/go-merge/pkg/cli/list"
 	"github.com/cian911/go-merge/pkg/cli/list"
 	"github.com/cian911/go-merge/pkg/cli/version"
 	"github.com/spf13/cobra"
@@ -37,7 +38,7 @@ func New() (c *cobra.Command) {
 	viper.BindPFlag("enterprise-base-url", c.PersistentFlags().Lookup("enterprise-base-url"))
   viper.BindPFlag("commit-msg", c.PersistentFlags().Lookup("commit-msg"))
 
-	// c.AddCommand(list.NewCommand())
+	c.AddCommand(list.List())
 	c.AddCommand(version.NewCommand())
 
 	return
