@@ -11,14 +11,14 @@ import (
 )
 
 type queryMsg struct {
-  items []list.Item
+	items []list.Item
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var (
-    cmd tea.Cmd
-    cmds []tea.Cmd
-  )
+		cmd  tea.Cmd
+		cmds []tea.Cmd
+	)
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -34,26 +34,25 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case tea.KeyCtrlC:
 			cmd = tea.Quit
-      cmds = append(cmds, cmd)
-    case tea.KeyUp, tea.KeyDown:
-      m.list, cmd = m.list.Update(msg)
-      m.viewport.GotoTop()
-      m.viewport.SetContent(m.mainViewportContent(m.viewport.Width))
-      cmds = append(cmds, cmd)
+			cmds = append(cmds, cmd)
+		case tea.KeyUp, tea.KeyDown:
+			m.list, cmd = m.list.Update(msg)
+			m.viewport.GotoTop()
+			m.viewport.SetContent(m.mainViewportContent(m.viewport.Width))
+			cmds = append(cmds, cmd)
 		}
-  case tea.WindowSizeMsg:
-    m.width, m.height = msg.Width, msg.Height
-    // mainViewWidth := (0.3 * float64(m.width))
-    m.list.SetSize(m.width, m.height)
-    m.viewport = viewport.New(m.width, m.height)
-    m.viewport.MouseWheelEnabled = true
-    m.viewport.SetContent(m.mainViewportContent(m.viewport.Width))
-  case queryMsg:
-    log.Println("Here.")
-    m.list.SetItems(msg.items)
+	case tea.WindowSizeMsg:
+		m.width, m.height = msg.Width, msg.Height
+		// mainViewWidth := (0.3 * float64(m.width))
+		m.list.SetSize(m.width, m.height)
+		m.viewport = viewport.New(m.width, m.height)
+		m.viewport.MouseWheelEnabled = true
+		m.viewport.SetContent(m.mainViewportContent(m.viewport.Width))
+	case queryMsg:
+		m.list.SetItems(msg.items)
 	default:
 		// Do something as default
-    m.list, cmd = m.list.Update(msg)
+		m.list, cmd = m.list.Update(msg)
 		cmds = append(cmds, cmd)
 
 		m.viewport, cmd = m.viewport.Update(msg)
@@ -66,34 +65,33 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // mainState denotes the state of the main view where we display
 // the PR list to the user.
 func (m model) mainState() tea.Cmd {
-	var (
-		// cmd  tea.Cmd
-		cmds []tea.Cmd
-	)
 
-  m.list.Title = "Pull Requests"
-  prs, _, err := m.gh.PullRequests.List(context.Background(), "Cian911", "gomerge-test", nil)
-  if err != nil {
-    log.Fatalf("Could not get PRs: %v", err)
-  }
-  idx := 0
-  items := []list.Item{}
+	// cmd  tea.Cmd
+	var cmds []tea.Cmd
 
-  for _,v := range prs {
-    item := item{
-      id: v.ID,
-      number: v.Number,
-      state: v.State,
-      title: v.Title,
-      body: v.Body,
-      createdAt: v.CreatedAt,
-      updatedAt: v.UpdatedAt,
-    }
-    items = append(items, item)
-      
-    idx += 1
-  }
-  m.list.SetItems(items)
+	m.list.Title = "Pull Requests"
+	prs, _, err := m.gh.PullRequests.List(context.Background(), "Cian911", "gomerge-test", nil)
+	if err != nil {
+		log.Fatalf("Could not get PRs: %v", err)
+	}
+	idx := 0
+	items := []list.Item{}
+
+	for _, v := range prs {
+		item := item{
+			id:        v.ID,
+			number:    v.Number,
+			state:     v.State,
+			title:     v.Title,
+			body:      v.Body,
+			createdAt: v.CreatedAt,
+			updatedAt: v.UpdatedAt,
+		}
+		items = append(items, item)
+
+		idx += 1
+	}
+	m.list.SetItems(items)
 
 	return tea.Batch(cmds...)
 }
@@ -123,38 +121,38 @@ func (m model) actionState(msg tea.Msg) tea.Cmd {
 }
 
 func (m model) queryCmd() tea.Cmd {
-  return func() tea.Msg {
-    var (
-      err error
-      items []list.Item
-    )
+	return func() tea.Msg {
+		var (
+			err   error
+			items []list.Item
+		)
 
-    m.list.Title = "Pull Requests"
-    prs, _, err := m.gh.PullRequests.List(context.Background(), "Cian911", "gomerge-test", nil)
-    if err != nil {
-      log.Fatalf("Could not get PRs: %v", err)
-    }
-    idx := 0
+		m.list.Title = "Pull Requests"
+		prs, _, err := m.gh.PullRequests.List(context.Background(), "Cian911", "gomerge-test", nil)
+		if err != nil {
+			log.Fatalf("Could not get PRs: %v", err)
+		}
+		idx := 0
 
-    for _,v := range prs {
-      item := item{
-        id: v.ID,
-        number: v.Number,
-        state: v.State,
-        title: v.Title,
-        body: v.Body,
-        createdAt: v.CreatedAt,
-        updatedAt: v.UpdatedAt,
-      }
-      items = append(items, item)
-        
-      idx += 1
-    }
+		for _, v := range prs {
+			item := item{
+				id:        v.ID,
+				number:    v.Number,
+				state:     v.State,
+				title:     v.Title,
+				body:      v.Body,
+				createdAt: v.CreatedAt,
+				updatedAt: v.UpdatedAt,
+			}
+			items = append(items, item)
 
-    return queryMsg{items: items}
-  }
+			idx += 1
+		}
+
+		return queryMsg{items: items}
+	}
 }
 
 func stringPtr(str string) *string {
-  return &str
+	return &str
 }
