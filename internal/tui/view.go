@@ -9,15 +9,20 @@ import (
 )
 
 func (m model) View() string {
-  return lipgloss.JoinVertical(
-    lipgloss.Left, 
-    lipgloss.JoinHorizontal(lipgloss.Top, m.mainView(), m.detailView()), 
-    m.helpView(),
-  )
+	if !m.loaded {
+		return m.spinner.View()
+	}
+
+	return lipgloss.JoinVertical(
+		lipgloss.Left,
+		lipgloss.JoinHorizontal(lipgloss.Top, m.mainView(), m.detailView()),
+		m.helpView(),
+	)
+	// return lipgloss.JoinHorizontal(lipgloss.Top, m.mainView(), m.detailView())
 }
 
 func (m model) mainViewportContent(width int) string {
-  var builder strings.Builder
+	var builder strings.Builder
 	divider := dividerStyle.Render(strings.Repeat("-", width)) + "\n"
 	if it := m.list.SelectedItem(); it != nil {
 		keyType := fmt.Sprintf("KeyType: %s\n", it.(item).Title())
@@ -36,19 +41,19 @@ func (m model) mainViewportContent(width int) string {
 }
 
 func (m model) mainView() string {
-  return mainViewStyle.Render(m.list.View())
+	return mainViewStyle.Render(m.list.View())
 }
 
 func (m model) detailView() string {
-  return m.viewport.View()
+	return m.viewport.View()
 }
 
 func (m model) helpView() string {
-  help := "ctrl-m - merge, ctrl-a - approve, ctrl-c close"
-  helpValue := helpViewStyle.Copy().Width(m.width).Render(help)
+	help := "ctrl-m - merge, ctrl-a - approve, ctrl-c close"
+	helpValue := helpViewStyle.Copy().Width(m.width).Render(help)
 
-  helpViewBar := lipgloss.JoinHorizontal(lipgloss.Top, helpValue)
-  return helpViewStyle.Width(m.width).Render(helpViewBar)
+	helpViewBar := lipgloss.JoinHorizontal(lipgloss.Top, helpValue)
+	return helpViewStyle.Width(m.width).Render(helpViewBar)
 }
 
 func (m model) actionView() string { return "" }

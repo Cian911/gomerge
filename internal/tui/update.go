@@ -6,8 +6,8 @@ import (
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/spf13/cast"
 )
 
 type queryMsg struct {
@@ -43,13 +43,18 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case tea.WindowSizeMsg:
 		m.width, m.height = msg.Width, msg.Height
-		// mainViewWidth := (0.3 * float64(m.width))
-		m.list.SetSize(m.width, m.height)
-		m.viewport = viewport.New(m.width, m.height)
-		m.viewport.MouseWheelEnabled = true
-		m.viewport.SetContent(m.mainViewportContent(m.viewport.Width))
+		// Main View Size
+		mainViewWidth := cast.ToInt(0.3 * float64(m.width))
+		mainViewSize := mainViewWidth - mainViewStyle.GetHorizontalFrameSize()
+		m.list.SetSize(mainViewSize, m.height)
+
+		// Detail View Size
+		// m.viewport = viewport.New(m.width-mainViewWidth, m.height)
+		// m.viewport.SetContent(m.mainViewportContent(m.viewport.Width))
 	case queryMsg:
 		m.list.SetItems(msg.items)
+		m.list.SetWidth(m.width / 2)
+		m.loaded = true
 	default:
 		// Do something as default
 		m.list, cmd = m.list.Update(msg)
@@ -65,7 +70,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // mainState denotes the state of the main view where we display
 // the PR list to the user.
 func (m model) mainState() tea.Cmd {
-
 	// cmd  tea.Cmd
 	var cmds []tea.Cmd
 

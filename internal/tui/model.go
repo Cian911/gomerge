@@ -21,6 +21,7 @@ type model struct {
 	spinner  spinner.Model
 
 	keyMap
+	loaded bool
 
 	// Github Client
 	gh *github.Client
@@ -41,6 +42,7 @@ func New() (*model, error) {
 
 		keyMap: defaultKeyMappings(),
 
-		gh: client,
+		gh:     client,
+		loaded: false,
 	}, nil
 }
