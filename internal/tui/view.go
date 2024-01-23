@@ -18,7 +18,6 @@ func (m model) View() string {
 		lipgloss.JoinHorizontal(lipgloss.Top, m.mainView(), m.detailView()),
 		m.helpView(),
 	)
-	// return lipgloss.JoinHorizontal(lipgloss.Top, m.mainView(), m.detailView())
 }
 
 func (m model) mainViewportContent(width int) string {
