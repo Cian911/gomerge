@@ -56,7 +56,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.viewport.SetContent(m.mainViewportContent(m.viewport.Width))
 	case queryMsg:
 		m.list.SetItems(msg.items)
+		m.list.Select(0)
 		m.list.SetWidth(m.width / 2)
+		m.viewport.SetContent(m.mainViewportContent(m.viewport.Width))
 		m.loaded = true
 	default:
 		// Do something as default

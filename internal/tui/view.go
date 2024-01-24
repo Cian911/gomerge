@@ -23,6 +23,7 @@ func (m model) View() string {
 func (m model) mainViewportContent(width int) string {
 	var builder strings.Builder
 	divider := dividerStyle.Render(strings.Repeat("-", width)) + "\n"
+
 	if it := m.list.SelectedItem(); it != nil {
 		keyType := fmt.Sprintf("KeyType: %s\n", it.(item).Title())
 		key := fmt.Sprintf("Key: \n%s\n", it.(item).State())
