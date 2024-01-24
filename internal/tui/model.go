@@ -30,6 +30,7 @@ type model struct {
 func New() (*model, error) {
 	client := gclient.Client(viper.GetString("token"), context.Background(), false)
 	l := list.New(nil, list.NewDefaultDelegate(), 0, 0)
+	l.Title = "Pull Requests"
 	l.SetShowHelp(false)
 	l.SetShowStatusBar(false)
 
