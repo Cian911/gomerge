@@ -14,6 +14,8 @@ type item struct {
 	body      *string
 	createdAt *github.Timestamp
 	updatedAt *github.Timestamp
+
+  checked bool
 }
 
 func (i item) Title() string {

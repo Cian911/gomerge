@@ -5,7 +5,9 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
+	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/viewport"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/google/go-github/v57/github"
 	"github.com/spf13/viper"
 
@@ -17,6 +19,7 @@ type model struct {
 	height int
 
 	list     list.Model
+  table    table.Model
 	viewport viewport.Model
 	spinner  spinner.Model
 
@@ -34,12 +37,39 @@ func New() (*model, error) {
 	l.SetShowHelp(false)
 	l.SetShowStatusBar(false)
 
+  columns := []table.Column{
+    {Title: "Title", Width: 12},
+    {Title: "Status", Width: 4},
+    {Title: "Age", Width: 4},
+    {Title: "Author", Width: 8},
+    {Title: "Checks", Width: 4},
+  }
+
+  t := table.New(
+    table.WithColumns(columns),
+    table.WithFocused(true),
+    table.WithHeight(1),
+    table.WithWidth(32),
+  ) 
+  tableStyle := table.DefaultStyles()
+	tableStyle.Header = tableStyle.Header.
+		BorderStyle(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color("240")).
+		BorderBottom(true).
+		Bold(false)
+	tableStyle.Selected = tableStyle.Selected.
+		Foreground(lipgloss.Color("229")).
+		Background(lipgloss.Color("57")).
+		Bold(false)
+	t.SetStyles(tableStyle)
+
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 
 	return &model{
 		list:    l,
 		spinner: s,
+    table: t,
 
 		keyMap: defaultKeyMappings(),
 

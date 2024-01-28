@@ -5,14 +5,14 @@ import (
 	"log"
 
 	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
 type queryMsg struct {
-	items []list.Item
+	items []table.Row
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -37,7 +37,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmd = tea.Quit
 			cmds = append(cmds, cmd)
 		case tea.KeyUp, tea.KeyDown:
-			m.list, cmd = m.list.Update(msg)
+			m.table, cmd = m.table.Update(msg)
 			m.viewport.GotoTop()
 			m.viewport.SetContent(m.mainViewportContent(m.viewport.Width))
 			cmds = append(cmds, cmd)
@@ -49,20 +49,25 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Main View Size
 		// mainViewWidth := cast.ToInt(0.2 * float64(m.width))
 		// mainViewSize := mainViewWidth - mainViewStyle.GetHorizontalFrameSize()
-		m.list.SetSize(m.width, m.height-helpBarHeight)
+		// m.table.SetSize(m.width, m.height-helpBarHeight)
+    m.table.SetWidth(m.width)
+    m.table.SetHeight(m.height-helpBarHeight)
 
 		// Detail View Size
 		m.viewport = viewport.New(m.width, m.height-helpBarHeight)
-		m.viewport.SetContent(m.mainViewportContent(m.viewport.Width))
+		// m.viewport.SetContent(m.mainViewportContent(m.viewport.Width))
 	case queryMsg:
-		m.list.SetItems(msg.items)
-		m.list.Select(0)
-		m.list.SetWidth(m.width / 2)
+    m.table.SetRows(msg.items)
+    m.table.SetWidth(m.width)
+		helpBarHeight := lipgloss.Height(m.helpView())
+    m.table.SetHeight(m.height-helpBarHeight)
+		// m.list.Select(0)
+		// m.list.SetWidth(m.width / 2)
 		m.viewport.SetContent(m.mainViewportContent(m.viewport.Width))
 		m.loaded = true
 	default:
 		// Do something as default
-		m.list, cmd = m.list.Update(msg)
+		m.table, cmd = m.table.Update(msg)
 		cmds = append(cmds, cmd)
 
 		m.viewport, cmd = m.viewport.Update(msg)
@@ -70,39 +75,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	return m, tea.Batch(cmds...)
-}
-
-// mainState denotes the state of the main view where we display
-// the PR list to the user.
-func (m model) mainState() tea.Cmd {
-	// cmd  tea.Cmd
-	var cmds []tea.Cmd
-
-	m.list.Title = "Pull Requests"
-	prs, _, err := m.gh.PullRequests.List(context.Background(), "Cian911", "gomerge-test", nil)
-	if err != nil {
-		log.Fatalf("Could not get PRs: %v", err)
-	}
-	idx := 0
-	items := []list.Item{}
-
-	for _, v := range prs {
-		item := item{
-			id:        v.ID,
-			number:    v.Number,
-			state:     v.State,
-			title:     v.Title,
-			body:      v.Body,
-			createdAt: v.CreatedAt,
-			updatedAt: v.UpdatedAt,
-		}
-		items = append(items, item)
-
-		idx += 1
-	}
-	m.list.SetItems(items)
-
-	return tea.Batch(cmds...)
 }
 
 // detailView denotes the state of the detail view where we display
@@ -133,10 +105,9 @@ func (m model) queryCmd() tea.Cmd {
 	return func() tea.Msg {
 		var (
 			err   error
-			items []list.Item
+			items []table.Row
 		)
 
-		m.list.Title = "Pull Requests"
 		prs, _, err := m.gh.PullRequests.List(context.Background(), "Cian911", "gomerge-test", nil)
 		if err != nil {
 			log.Fatalf("Could not get PRs: %v", err)
@@ -144,15 +115,22 @@ func (m model) queryCmd() tea.Cmd {
 		idx := 0
 
 		for _, v := range prs {
-			item := item{
-				id:        v.ID,
-				number:    v.Number,
-				state:     v.State,
-				title:     v.Title,
-				body:      v.Body,
-				createdAt: v.CreatedAt,
-				updatedAt: v.UpdatedAt,
-			}
+			// item := table.Row{
+			// 	id:        v.ID,
+			// 	number:    v.Number,
+			// 	state:     v.State,
+			// 	title:     v.Title,
+			// 	body:      v.Body,
+			// 	createdAt: v.CreatedAt,
+			// 	updatedAt: v.UpdatedAt,
+			// }
+      item := table.Row{
+        "[ISSUE-69] Update all package dependencies and fix issue with CI.",
+        string(*v.State),
+        "2 weeks ago",
+        "Cian911",
+        "passing",
+      }
 			items = append(items, item)
 
 			idx += 1

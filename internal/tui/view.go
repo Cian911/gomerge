@@ -41,7 +41,27 @@ func (m model) mainViewportContent(width int) string {
 }
 
 func (m model) mainView() string {
-	return mainViewStyle.Render(m.list.View())
+  // var builder strings.Builder
+  //
+  // for _, listItem := range m.list.Items() {
+  //   it := listItem.(item)
+  //
+  //   checkbox := "[ ]"
+  //   if it.checked {
+  //     checkbox = "[x]"
+  //   }
+  //
+  //   checkbox = checkboxStyle.Render(checkbox)
+  //   title := titleStyle.Render(fmt.Sprintf("%s", it.Title()))
+  //   state := stateStyle.Render(fmt.Sprintf("%s", it.State()))
+  //
+  //   line := lipgloss.JoinHorizontal(lipgloss.Top, checkbox, title, state)
+  //   builder.WriteString(lineStyle.Render(line))
+  //   builder.WriteString("\n")
+  // }
+  //
+  // return mainViewStyle.Render(builder.String())
+  return mainViewStyle.Render(m.table.View())
 }
 
 func (m model) detailView() string {
