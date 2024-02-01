@@ -24,44 +24,44 @@ func (m model) mainViewportContent(width int) string {
 	var builder strings.Builder
 	divider := dividerStyle.Render(strings.Repeat("-", width)) + "\n"
 
-	if it := m.list.SelectedItem(); it != nil {
-		keyType := fmt.Sprintf("KeyType: %s\n", it.(item).Title())
-		key := fmt.Sprintf("Key: \n%s\n", it.(item).State())
-		value := fmt.Sprintf("Value: \n%s\n", it.(item).Id())
+	if m.loaded {
+		keyType := fmt.Sprintf("Title: %s\n", m.table.SelectedRow()[0])
+		key := fmt.Sprintf("State: \n%s\n", m.table.SelectedRow()[1])
+		value := fmt.Sprintf("Value: \n%s\n", m.table.SelectedRow()[3])
 		builder.WriteString(keyType)
 		builder.WriteString(divider)
 		builder.WriteString(key)
 		builder.WriteString(divider)
 		builder.WriteString(value)
 	} else {
-		builder.WriteString("No item selected")
+		builder.WriteString("Content not loaded.")
 	}
 
 	return wordwrap.String(builder.String(), width)
 }
 
 func (m model) mainView() string {
-  // var builder strings.Builder
-  //
-  // for _, listItem := range m.list.Items() {
-  //   it := listItem.(item)
-  //
-  //   checkbox := "[ ]"
-  //   if it.checked {
-  //     checkbox = "[x]"
-  //   }
-  //
-  //   checkbox = checkboxStyle.Render(checkbox)
-  //   title := titleStyle.Render(fmt.Sprintf("%s", it.Title()))
-  //   state := stateStyle.Render(fmt.Sprintf("%s", it.State()))
-  //
-  //   line := lipgloss.JoinHorizontal(lipgloss.Top, checkbox, title, state)
-  //   builder.WriteString(lineStyle.Render(line))
-  //   builder.WriteString("\n")
-  // }
-  //
-  // return mainViewStyle.Render(builder.String())
-  return mainViewStyle.Render(m.table.View())
+	// var builder strings.Builder
+	//
+	// for _, listItem := range m.list.Items() {
+	//   it := listItem.(item)
+	//
+	//   checkbox := "[ ]"
+	//   if it.checked {
+	//     checkbox = "[x]"
+	//   }
+	//
+	//   checkbox = checkboxStyle.Render(checkbox)
+	//   title := titleStyle.Render(fmt.Sprintf("%s", it.Title()))
+	//   state := stateStyle.Render(fmt.Sprintf("%s", it.State()))
+	//
+	//   line := lipgloss.JoinHorizontal(lipgloss.Top, checkbox, title, state)
+	//   builder.WriteString(lineStyle.Render(line))
+	//   builder.WriteString("\n")
+	// }
+	//
+	// return mainViewStyle.Render(builder.String())
+	return mainViewStyle.Render(m.table.View())
 }
 
 func (m model) detailView() string {

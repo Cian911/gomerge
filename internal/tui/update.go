@@ -50,19 +50,47 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// mainViewWidth := cast.ToInt(0.2 * float64(m.width))
 		// mainViewSize := mainViewWidth - mainViewStyle.GetHorizontalFrameSize()
 		// m.table.SetSize(m.width, m.height-helpBarHeight)
-    m.table.SetWidth(m.width)
-    m.table.SetHeight(m.height-helpBarHeight)
+		m.table.SetWidth(m.width)
+		m.table.SetHeight(m.height - helpBarHeight)
 
 		// Detail View Size
 		m.viewport = viewport.New(m.width, m.height-helpBarHeight)
-		// m.viewport.SetContent(m.mainViewportContent(m.viewport.Width))
+		m.viewport.SetContent(m.mainViewportContent(m.viewport.Width))
 	case queryMsg:
-    m.table.SetRows(msg.items)
-    m.table.SetWidth(m.width)
-		helpBarHeight := lipgloss.Height(m.helpView())
-    m.table.SetHeight(m.height-helpBarHeight)
+		// m.table.SetRows(msg.items)
+		// m.table.SetWidth(m.width)
+		// helpBarHeight := lipgloss.Height(m.helpView())
+		// m.table.SetHeight(m.height - helpBarHeight)
 		// m.list.Select(0)
 		// m.list.SetWidth(m.width / 2)
+		// m.table.SetWidth(m.width/ 2)
+		columns := []table.Column{
+			{Title: "Title", Width: 50},
+			{Title: "Status", Width: 8},
+			{Title: "Age", Width: 12},
+			{Title: "Author", Width: 12},
+			{Title: "Checks", Width: 15},
+		}
+
+		t := table.New(
+			table.WithColumns(columns),
+			table.WithRows(msg.items),
+			table.WithFocused(true),
+			// table.WithHeight(10),
+			table.WithWidth(100),
+		)
+		tableStyle := table.DefaultStyles()
+		tableStyle.Header = tableStyle.Header.
+			BorderStyle(lipgloss.NormalBorder()).
+			BorderForeground(lipgloss.Color("240")).
+			BorderBottom(true).
+			Bold(false)
+		tableStyle.Selected = tableStyle.Selected.
+			Foreground(lipgloss.Color("229")).
+			Background(lipgloss.Color("57")).
+			Bold(false)
+		t.SetStyles(tableStyle)
+		m.table = t
 		m.viewport.SetContent(m.mainViewportContent(m.viewport.Width))
 		m.loaded = true
 	default:
@@ -124,13 +152,20 @@ func (m model) queryCmd() tea.Cmd {
 			// 	createdAt: v.CreatedAt,
 			// 	updatedAt: v.UpdatedAt,
 			// }
-      item := table.Row{
-        "[ISSUE-69] Update all package dependencies and fix issue with CI.",
-        string(*v.State),
-        "2 weeks ago",
-        "Cian911",
-        "passing",
-      }
+			item := table.Row{
+				string(*v.Title),
+				string(*v.State),
+				"2 weeks ago",
+				string(v.User.GetID()),
+				"passing",
+			}
+			//    item := table.Row{
+			// 	string(*v.Title),
+			// 	string(*v.State),
+			// 	v.CreatedAt.String(),
+			// 	v.User.GetName(),
+			// 	fmt.Sprintf("%t", v.Mergeable),
+			// }
 			items = append(items, item)
 
 			idx += 1
