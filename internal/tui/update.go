@@ -2,6 +2,7 @@ package tui
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -12,7 +13,7 @@ import (
 )
 
 type queryMsg struct {
-	items []table.Row
+	items []PullRequest
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -33,65 +34,75 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, m.keyMap.close):
 				// Close PR
 			}
+    case tea.KeyEnter:
+      itemId := m.table.SelectedRow()[1] 
+      m.prs = updatedSelectedItem(m.prs, itemId)
+      rows := mapToTableRows(m.prs) 
+      m.table.SetRows(rows)
 		case tea.KeyCtrlC:
 			cmd = tea.Quit
 			cmds = append(cmds, cmd)
 		case tea.KeyUp, tea.KeyDown:
 			m.table, cmd = m.table.Update(msg)
 			m.viewport.GotoTop()
-			m.viewport.SetContent(m.mainViewportContent(m.viewport.Width))
+      // Clear viewport  
+      m.viewport.SetContent("")
+      // Render new content
+			m.viewport.SetContent(m.mainViewportContent(m.detailViewWidth))
 			cmds = append(cmds, cmd)
 		}
 	case tea.WindowSizeMsg:
-		m.width, m.height = msg.Width, msg.Height
-		helpBarHeight := lipgloss.Height(m.helpView())
+    m.width, m.height = msg.Width, msg.Height
+    helpBarHeight := lipgloss.Height(m.helpView())
 
-		// Main View Size
-		// mainViewWidth := cast.ToInt(0.2 * float64(m.width))
-		// mainViewSize := mainViewWidth - mainViewStyle.GetHorizontalFrameSize()
-		// m.table.SetSize(m.width, m.height-helpBarHeight)
-		m.table.SetWidth(m.width)
-		m.table.SetHeight(m.height - helpBarHeight)
+    // Calculate widths for table and detail view
+    tableWidth := int(float32(m.width) * 0.7)
+    detailViewWidth := m.width - tableWidth
 
-		// Detail View Size
-		m.viewport = viewport.New(m.width, m.height-helpBarHeight)
-		m.viewport.SetContent(m.mainViewportContent(m.viewport.Width))
+    // Main View Size (Table)
+    m.table.SetWidth(tableWidth)
+    m.tableWidth = tableWidth
+    if m.loaded {
+      columns := adaptiveColumnWidths(m.tableWidth)
+      m.table.SetColumns(columns)
+    }
+    m.table.SetHeight(m.height - helpBarHeight)
+    m.tableHeight = m.height - helpBarHeight
+
+    // Detail View Size (Viewport for Sidebar)
+    m.viewport.Width = detailViewWidth
+    m.detailViewWidth = detailViewWidth
+    m.viewport.Height = m.height - helpBarHeight
+    m.detailViewHeight = m.viewport.Height
+    m.viewport.SetContent(m.mainViewportContent(m.viewport.Width))
 	case queryMsg:
-		// m.table.SetRows(msg.items)
-		// m.table.SetWidth(m.width)
-		// helpBarHeight := lipgloss.Height(m.helpView())
-		// m.table.SetHeight(m.height - helpBarHeight)
-		// m.list.Select(0)
-		// m.list.SetWidth(m.width / 2)
-		// m.table.SetWidth(m.width/ 2)
-		columns := []table.Column{
-			{Title: "Title", Width: 50},
-			{Title: "Status", Width: 8},
-			{Title: "Age", Width: 12},
-			{Title: "Author", Width: 12},
-			{Title: "Checks", Width: 15},
-		}
+		columns := adaptiveColumnWidths(m.tableWidth)
+  //   columns := []table.Column{
+		// 	{Title: "", Width: 3},
+		// 	{Title: "Id", Width: 3},
+		// 	{Title: "Title", Width: 40},
+		// 	{Title: "Age", Width: 12},
+		// 	{Title: "Repository", Width: 25},
+		// 	{Title: "Author", Width: 12},
+		// }
+    rows := mapToTableRows(msg.items)
 
 		t := table.New(
 			table.WithColumns(columns),
-			table.WithRows(msg.items),
+			table.WithRows(rows),
 			table.WithFocused(true),
-			// table.WithHeight(10),
-			table.WithWidth(100),
+      table.WithWidth(m.tableWidth),
+      table.WithHeight(m.tableHeight),
 		)
-		tableStyle := table.DefaultStyles()
-		tableStyle.Header = tableStyle.Header.
-			BorderStyle(lipgloss.NormalBorder()).
-			BorderForeground(lipgloss.Color("240")).
-			BorderBottom(true).
-			Bold(false)
-		tableStyle.Selected = tableStyle.Selected.
-			Foreground(lipgloss.Color("229")).
-			Background(lipgloss.Color("57")).
-			Bold(false)
-		t.SetStyles(tableStyle)
+    tStyle := table.DefaultStyles()
+    tStyle.Header = tableStyle
+    tStyle.Selected = tableSelectedStyle
+    tStyle.Cell = tableCellStyle
+		t.SetStyles(tStyle)
 		m.table = t
-		m.viewport.SetContent(m.mainViewportContent(m.viewport.Width))
+    m.prs = msg.items
+		m.viewport = viewport.New(m.width, m.height)
+    m.viewport.SetContent(m.mainViewportContent(m.detailViewWidth))
 		m.loaded = true
 	default:
 		// Do something as default
@@ -133,46 +144,54 @@ func (m model) queryCmd() tea.Cmd {
 	return func() tea.Msg {
 		var (
 			err   error
-			items []table.Row
+			items []PullRequest
 		)
 
 		prs, _, err := m.gh.PullRequests.List(context.Background(), "Cian911", "gomerge-test", nil)
 		if err != nil {
 			log.Fatalf("Could not get PRs: %v", err)
 		}
-		idx := 0
 
 		for _, v := range prs {
-			// item := table.Row{
-			// 	id:        v.ID,
-			// 	number:    v.Number,
-			// 	state:     v.State,
-			// 	title:     v.Title,
-			// 	body:      v.Body,
-			// 	createdAt: v.CreatedAt,
-			// 	updatedAt: v.UpdatedAt,
-			// }
-			item := table.Row{
-				string(*v.Title),
-				string(*v.State),
-				"2 weeks ago",
-				string(v.User.GetID()),
-				"passing",
-			}
-			//    item := table.Row{
-			// 	string(*v.Title),
-			// 	string(*v.State),
-			// 	v.CreatedAt.String(),
-			// 	v.User.GetName(),
-			// 	fmt.Sprintf("%t", v.Mergeable),
-			// }
-			items = append(items, item)
+      item := PullRequest{
+        Id: fmt.Sprintf("%d", *v.Number),
+        Title: string(*v.Title),  
+        CreatedAt: v.CreatedAt,
+        UpdatedAt: v.UpdatedAt,
+        Repo: "Cian911/gomerge-test",
+        Author: *v.User.Login,
+        Head: v.Head,
+        Base: v.Base,
+        Mergeable: v.GetMergeable(),
+        Body: v.GetBody(),
+        State: v.GetState(),
+        selected: false,
+      }
 
-			idx += 1
+			items = append(items, item)
 		}
 
 		return queryMsg{items: items}
 	}
+}
+
+func adaptiveColumnWidths(tableWidth int) []table.Column {
+    // Define minimum column width to prevent overly narrow columns
+    minColumnWidth := 5
+
+    proportions := []float32{0.02, 0.02, 0.4, 0.05, 0.15, 0.05}
+    titles := []string{"", "Id", "Title", "Age", "Repository", "Author"}
+
+    columns := make([]table.Column, len(proportions))
+    for i, proportion := range proportions {
+        width := int(float32(tableWidth) * proportion)
+        if width < minColumnWidth {
+            width = minColumnWidth
+        }
+        columns[i] = table.Column{Title: titles[i], Width: width}
+    }
+    
+    return columns
 }
 
 func stringPtr(str string) *string {

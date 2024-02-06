@@ -1,7 +1,6 @@
 package tui
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -22,50 +21,45 @@ func (m model) View() string {
 
 func (m model) mainViewportContent(width int) string {
 	var builder strings.Builder
-	divider := dividerStyle.Render(strings.Repeat("-", width)) + "\n"
 
 	if m.loaded {
-		keyType := fmt.Sprintf("Title: %s\n", m.table.SelectedRow()[0])
-		key := fmt.Sprintf("State: \n%s\n", m.table.SelectedRow()[1])
-		value := fmt.Sprintf("Value: \n%s\n", m.table.SelectedRow()[3])
-		builder.WriteString(keyType)
-		builder.WriteString(divider)
-		builder.WriteString(key)
-		builder.WriteString(divider)
-		builder.WriteString(value)
+    title := detailViewTitleStyle.Render(m.table.SelectedRow()[2])
+    mergable := detailViewStateStyle.Render(m.prs[m.table.Cursor()].IsMergable())
+    state := lipgloss.NewStyle().
+      Background(lipgloss.Color("#1CA4D6")).
+      Width(lipgloss.Width(mergable)-5).
+      Bold(true).
+      Align(lipgloss.Center).
+      Render(strings.ToUpper(m.prs[m.table.Cursor()].State))
+    state = detailViewStateStyle.Render(state)
+    stateRow := lipgloss.JoinHorizontal(lipgloss.Top, mergable, state)
+
+    branch := detailViewBranchStyle.Render(m.prs[m.table.Cursor()].Branch())
+    // description := detailViewDescriptionStyle.Render(m.prs[m.table.Cursor()].Description())
+		
+    builder.WriteString("\n\n\n")
+    builder.WriteString(title)
+    builder.WriteString("\n\n")
+    builder.WriteString(branch)
+    builder.WriteString("\n\n")
+    builder.WriteString(stateRow)
+    builder.WriteString("\n\n")
+    // builder.WriteString(description)
 	} else {
-		builder.WriteString("Content not loaded.")
+    defaultMsg := detailViewDefaultMsgStyle.Render("Content not loaded.")
+		builder.WriteString(defaultMsg)
 	}
 
 	return wordwrap.String(builder.String(), width)
 }
 
 func (m model) mainView() string {
-	// var builder strings.Builder
-	//
-	// for _, listItem := range m.list.Items() {
-	//   it := listItem.(item)
-	//
-	//   checkbox := "[ ]"
-	//   if it.checked {
-	//     checkbox = "[x]"
-	//   }
-	//
-	//   checkbox = checkboxStyle.Render(checkbox)
-	//   title := titleStyle.Render(fmt.Sprintf("%s", it.Title()))
-	//   state := stateStyle.Render(fmt.Sprintf("%s", it.State()))
-	//
-	//   line := lipgloss.JoinHorizontal(lipgloss.Top, checkbox, title, state)
-	//   builder.WriteString(lineStyle.Render(line))
-	//   builder.WriteString("\n")
-	// }
-	//
-	// return mainViewStyle.Render(builder.String())
-	return mainViewStyle.Render(m.table.View())
+	return mainViewStyle.Width(m.tableWidth).Height(m.tableHeight).Render(m.table.View())
 }
 
 func (m model) detailView() string {
-	return m.viewport.View()
+  styledDetail := lipgloss.NewStyle().Width(m.detailViewWidth).Height(m.detailViewHeight).Render(m.viewport.View())
+	return styledDetail
 }
 
 func (m model) helpView() string {

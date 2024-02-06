@@ -1,36 +1,65 @@
 package tui
 
-import "github.com/charmbracelet/lipgloss"
+import (
+	"github.com/charmbracelet/bubbles/table"
+	"github.com/charmbracelet/lipgloss"
+)
 
 var (
-	// mainViewStyle = lipgloss.NewStyle().Border(lipgloss.NormalBorder(), false, true).Padding(0, 2)
   mainViewStyle = lipgloss.NewStyle().
-	  // BorderStyle(lipgloss.NormalBorder()).
-    PaddingTop(5).
-	  BorderForeground(lipgloss.Color("240"))
+	  BorderForeground(lipgloss.Color("240")).
+    BorderRight(true)
+
+  tableStyle = table.DefaultStyles().
+    Header.
+    BorderStyle(lipgloss.NormalBorder()).
+    BorderForeground(lipgloss.Color("240")).
+    BorderBottom(true).
+    Bold(false)
+
+  tableSelectedStyle = table.DefaultStyles().
+    Selected.
+    Foreground(lipgloss.Color("229")).
+		Background(lipgloss.Color("57")).
+		Bold(false)   
+
+  tableCellStyle = table.DefaultStyles().
+    Cell.
+    Padding(1)
 
 	detailViewStyle = lipgloss.NewStyle().
 			Padding(1, 1).
-			Border(lipgloss.RoundedBorder())
+      BorderLeft(true)
+
+  detailViewBranchStyle = lipgloss.NewStyle().
+    Italic(true).
+    Bold(true).
+    Foreground(lipgloss.Color("#CBCBCB")).
+    MarginLeft(3)
+
+  detailViewTitleStyle = lipgloss.NewStyle().
+    Bold(true).
+    Foreground(lipgloss.Color("#fff")).
+    MarginLeft(3).
+    Align(lipgloss.Left)
+
+  detailViewStateStyle = lipgloss.NewStyle().
+    Bold(true).
+    Foreground(lipgloss.Color("#fff")).
+    MarginLeft(3).
+    Align(lipgloss.Left)
+
+  detailViewDescriptionStyle = lipgloss.NewStyle().
+    MarginLeft(3).
+    Foreground(lipgloss.Color("#fff"))
+
+  detailViewDefaultMsgStyle = lipgloss.NewStyle().
+    Align(lipgloss.Center).
+    Bold(true).
+    Foreground(lipgloss.Color("#fff"))
 
 	helpViewStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.AdaptiveColor{Light: "#343433", Dark: "#C1C6B2"}).
 			Background(lipgloss.AdaptiveColor{Light: "#24273a", Dark: "#181926"}).
 			Align(lipgloss.Center)
-
-	dividerStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.AdaptiveColor{Light: "#9B9B9B", Dark: "#5C5C5C"})
-
-  titleStyle = lipgloss.NewStyle().Width(70)
-  stateStyle = lipgloss.NewStyle().Width(20)
-  checkboxStyle = lipgloss.NewStyle().Width(4)
-  lineStyle = lipgloss.NewStyle().
-    PaddingTop(1).
-    PaddingBottom(1).
-    Border(lipgloss.ThickBorder(), true, false, false, false)
-
-  selectedItemStyle = lipgloss.NewStyle().
-    Background(lipgloss.Color("#FF00FF")).
-    Foreground(lipgloss.Color("#FFF")).
-    Bold(true)
 )
