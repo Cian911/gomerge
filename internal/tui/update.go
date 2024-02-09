@@ -93,8 +93,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			table.WithColumns(columns),
 			table.WithRows(rows),
 			table.WithFocused(true),
-      table.WithWidth(m.tableWidth),
-      table.WithHeight(m.tableHeight),
+      // table.WithWidth(m.tableWidth),
+      // table.WithHeight(m.tableHeight),
 		)
     tStyle := table.DefaultStyles()
     tStyle.Header = tableStyle

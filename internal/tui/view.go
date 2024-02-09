@@ -54,13 +54,19 @@ func (m model) mainViewportContent(width int) string {
 }
 
 func (m model) mainView() string {
-	return mainViewStyle.Width(m.tableWidth).Height(m.tableHeight).Render(m.table.View())
+	return mainViewStyle.
+    // Width(m.tableWidth).
+    // Height(m.tableHeight).
+    MaxWidth(m.tableWidth).
+    MaxHeight(m.tableHeight).
+    Render(m.table.View())
 }
 
 func (m model) detailView() string {
   styledDetail := lipgloss.NewStyle().
-    Width(m.detailViewWidth).
-    Height(m.detailViewHeight).
+    // Width(m.detailViewWidth).
+    MaxHeight(m.detailViewHeight).
+    MaxWidth(m.detailViewWidth).
     BorderLeft(true).
     BorderStyle(lipgloss.NormalBorder()).
     BorderForeground(lipgloss.Color("63")).
@@ -80,8 +86,10 @@ func (m model) helpView() string {
 func (m model) actionView() string {
   items := "[x] #234 Issue 69 revert"
   actionView := lipgloss.NewStyle().
-    Width(m.actionViewWidth).
-    Height(m.actionViewHeight).
+    // Width(m.actionViewWidth).
+    // Height(10).
+    MaxHeight(m.actionViewHeight).
+    MaxWidth(m.actionViewWidth).
     Align(lipgloss.Left).
     BorderLeft(true).
     BorderTop(true).
