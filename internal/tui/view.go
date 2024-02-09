@@ -37,7 +37,7 @@ func (m model) mainViewportContent(width int) string {
     branch := detailViewBranchStyle.Render(m.prs[m.table.Cursor()].Branch())
     // description := detailViewDescriptionStyle.Render(m.prs[m.table.Cursor()].Description())
 		
-    builder.WriteString("\n\n\n")
+    builder.WriteString("\n")
     builder.WriteString(title)
     builder.WriteString("\n\n")
     builder.WriteString(branch)
@@ -55,8 +55,6 @@ func (m model) mainViewportContent(width int) string {
 
 func (m model) mainView() string {
 	return mainViewStyle.
-    // Width(m.tableWidth).
-    // Height(m.tableHeight).
     MaxWidth(m.tableWidth).
     MaxHeight(m.tableHeight).
     Render(m.table.View())
@@ -64,7 +62,6 @@ func (m model) mainView() string {
 
 func (m model) detailView() string {
   styledDetail := lipgloss.NewStyle().
-    // Width(m.detailViewWidth).
     MaxHeight(m.detailViewHeight).
     MaxWidth(m.detailViewWidth).
     BorderLeft(true).
@@ -86,9 +83,8 @@ func (m model) helpView() string {
 func (m model) actionView() string {
   items := "[x] #234 Issue 69 revert"
   actionView := lipgloss.NewStyle().
-    // Width(m.actionViewWidth).
-    // Height(10).
     MaxHeight(m.actionViewHeight).
+    Height(20).
     MaxWidth(m.actionViewWidth).
     Align(lipgloss.Left).
     BorderLeft(true).
