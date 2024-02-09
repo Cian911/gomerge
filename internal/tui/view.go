@@ -14,7 +14,7 @@ func (m model) View() string {
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
-		lipgloss.JoinHorizontal(lipgloss.Top, m.mainView(), m.detailView()),
+		lipgloss.JoinHorizontal(lipgloss.Top, m.mainView(), lipgloss.JoinVertical(lipgloss.Top, m.detailView(), m.actionView())),
 		m.helpView(),
 	)
 }
@@ -58,7 +58,14 @@ func (m model) mainView() string {
 }
 
 func (m model) detailView() string {
-  styledDetail := lipgloss.NewStyle().Width(m.detailViewWidth).Height(m.detailViewHeight).Render(m.viewport.View())
+  styledDetail := lipgloss.NewStyle().
+    Width(m.detailViewWidth).
+    Height(m.detailViewHeight).
+    BorderLeft(true).
+    BorderStyle(lipgloss.NormalBorder()).
+    BorderForeground(lipgloss.Color("63")).
+    Render(m.viewport.View())
+
 	return styledDetail
 }
 
@@ -70,4 +77,17 @@ func (m model) helpView() string {
 	return helpViewStyle.Width(m.width).Render(helpViewBar)
 }
 
-func (m model) actionView() string { return "" }
+func (m model) actionView() string {
+  items := "[x] #234 Issue 69 revert"
+  actionView := lipgloss.NewStyle().
+    Width(m.actionViewWidth).
+    Height(m.actionViewHeight).
+    Align(lipgloss.Left).
+    BorderLeft(true).
+    BorderTop(true).
+    BorderStyle(lipgloss.NormalBorder()).
+    BorderForeground(lipgloss.Color("63")).
+    Render(items)
+  
+  return actionView
+}

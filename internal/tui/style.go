@@ -29,7 +29,8 @@ var (
 
 	detailViewStyle = lipgloss.NewStyle().
 			Padding(1, 1).
-      BorderLeft(true)
+      BorderLeft(true).
+      BorderBottom(true).BorderBottomBackground(lipgloss.Color("#fff"))
 
   detailViewBranchStyle = lipgloss.NewStyle().
     Italic(true).

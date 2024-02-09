@@ -19,6 +19,8 @@ type model struct {
   tableHeight int
   detailViewWidth int
   detailViewHeight int
+  actionViewWidth int
+  actionViewHeight int
 
   prs      []PullRequest
   table    table.Model

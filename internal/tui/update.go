@@ -73,7 +73,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     m.viewport.Width = detailViewWidth
     m.detailViewWidth = detailViewWidth
     m.viewport.Height = m.height - helpBarHeight
-    m.detailViewHeight = m.viewport.Height
+    m.detailViewHeight = m.viewport.Height / 2
+    m.actionViewWidth = m.detailViewWidth
+    m.actionViewHeight = m.detailViewHeight
     m.viewport.SetContent(m.mainViewportContent(m.viewport.Width))
 	case queryMsg:
 		columns := adaptiveColumnWidths(m.tableWidth)
