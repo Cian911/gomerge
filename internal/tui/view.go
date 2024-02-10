@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -53,6 +54,27 @@ func (m model) mainViewportContent(width int) string {
 	return wordwrap.String(builder.String(), width)
 }
 
+func (m model) actionViewportContent(width int) string {
+	var builder strings.Builder
+  selectedPrStyle := lipgloss.NewStyle().
+    Align(lipgloss.Left).
+    Foreground(lipgloss.Color("#fff"))  
+
+	if m.loaded {
+    for _, pr := range m.prs {
+      if pr.selected {
+        selected := fmt.Sprintf("[x] #%s %s\n", pr.Id, pr.Title)
+        builder.WriteString(selectedPrStyle.Render(selected))
+      }
+    }
+	} else {
+    defaultMsg := detailViewDefaultMsgStyle.Render("Content not loaded.")
+		builder.WriteString(defaultMsg)
+	}
+
+	return wordwrap.String(builder.String(), width)
+}
+
 func (m model) mainView() string {
 	return mainViewStyle.
     MaxWidth(m.tableWidth).
@@ -81,7 +103,6 @@ func (m model) helpView() string {
 }
 
 func (m model) actionView() string {
-  items := "[x] #234 Issue 69 revert"
   actionView := lipgloss.NewStyle().
     MaxHeight(m.actionViewHeight).
     Height(20).
@@ -91,7 +112,7 @@ func (m model) actionView() string {
     BorderTop(true).
     BorderStyle(lipgloss.NormalBorder()).
     BorderForeground(lipgloss.Color("63")).
-    Render(items)
+    Render(m.actionViewportContent(m.actionViewWidth))
   
   return actionView
 }
