@@ -29,16 +29,21 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch {
 			case key.Matches(msg, m.keyMap.approve):
 				// Approve PR
+        rows := m.applySelection(Approve) 
+        m.table.SetRows(rows)
 			case key.Matches(msg, m.keyMap.merge):
 				// Merge PR
+        rows := m.applySelection(Merge) 
+        m.table.SetRows(rows)
 			case key.Matches(msg, m.keyMap.close):
 				// Close PR
+        rows := m.applySelection(Close) 
+        m.table.SetRows(rows)
+    case key.Matches(msg, m.keyMap.remove):
+        // Remove PR from selected list
+        rows := m.applySelection(None)
+        m.table.SetRows(rows)
 			}
-    case tea.KeyEnter:
-      itemId := m.table.SelectedRow()[1] 
-      m.prs = updatedSelectedItem(m.prs, itemId)
-      rows := mapToTableRows(m.prs) 
-      m.table.SetRows(rows)
 		case tea.KeyCtrlC:
 			cmd = tea.Quit
 			cmds = append(cmds, cmd)
@@ -57,7 +62,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
     // Calculate widths for table and detail view
     tableWidth := int(float32(m.width) * 0.7)
-    detailViewWidth := m.width - tableWidth
+    // Subtract a slight offset to the sidebar width
+    detailViewWidth := m.width - (tableWidth - 10)
 
     // Main View Size (Table)
     m.table.SetWidth(tableWidth)
@@ -71,22 +77,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
     // Detail View Size (Viewport for Sidebar)
     m.viewport.Width = detailViewWidth
-    m.detailViewWidth = detailViewWidth
     m.viewport.Height = m.height - helpBarHeight
+
+    m.detailViewWidth = detailViewWidth
     m.detailViewHeight = m.viewport.Height / 2
+
     m.actionViewWidth = m.detailViewWidth
     m.actionViewHeight = m.detailViewHeight
-    m.viewport.SetContent(m.mainViewportContent(m.viewport.Width))
+    m.viewport.SetContent(m.mainViewportContent(m.detailViewWidth))
 	case queryMsg:
 		columns := adaptiveColumnWidths(m.tableWidth)
-  //   columns := []table.Column{
-		// 	{Title: "", Width: 3},
-		// 	{Title: "Id", Width: 3},
-		// 	{Title: "Title", Width: 40},
-		// 	{Title: "Age", Width: 12},
-		// 	{Title: "Repository", Width: 25},
-		// 	{Title: "Author", Width: 12},
-		// }
     rows := mapToTableRows(msg.items)
 
 		t := table.New(
@@ -94,7 +94,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			table.WithRows(rows),
 			table.WithFocused(true),
       table.WithWidth(m.tableWidth),
-      // table.WithHeight(m.tableHeight),
+      table.WithHeight(m.tableHeight),
 		)
     tStyle := table.DefaultStyles()
     tStyle.Header = tableStyle
@@ -167,7 +167,13 @@ func (m model) queryCmd() tea.Cmd {
         Mergeable: v.GetMergeable(),
         Body: v.GetBody(),
         State: v.GetState(),
+        MergeableState: v.GetMergeableState(),
+        Additions: v.GetAdditions(),
+        Deletions: v.GetDeletions(),
+        Assignee: v.GetAssignee().GetName(),
+        Draft: v.GetDraft(),
         selected: false,
+        choice: None,
       }
 
 			items = append(items, item)
@@ -182,7 +188,7 @@ func adaptiveColumnWidths(tableWidth int) []table.Column {
     minColumnWidth := 5
 
     proportions := []float32{0.02, 0.02, 0.4, 0.05, 0.15, 0.05}
-    titles := []string{"", "Id", "Title", "Age", "Repository", "Author"}
+    titles := []string{"", mergeGlyph, "Title", timeGlyph, repoGlyph, authorGlyph}
 
     columns := make([]table.Column, len(proportions))
     for i, proportion := range proportions {
@@ -194,6 +200,14 @@ func adaptiveColumnWidths(tableWidth int) []table.Column {
     }
     
     return columns
+}
+
+func (m model) applySelection(choice Choice) []table.Row {
+  itemId := m.table.SelectedRow()[1] 
+  m.prs[m.table.Cursor()].choice = choice
+  m.prs = updatedSelectedItem(m.prs, itemId)
+  rows := mapToTableRows(m.prs) 
+  return rows
 }
 
 func stringPtr(str string) *string {

@@ -6,6 +6,7 @@ type keyMap struct {
 	approve key.Binding
 	close   key.Binding
 	merge   key.Binding
+	remove  key.Binding
 }
 
 func defaultKeyMappings() keyMap {
@@ -18,6 +19,9 @@ func defaultKeyMappings() keyMap {
 		),
 		merge: key.NewBinding(
 			key.WithKeys("m"),
+		),
+		remove: key.NewBinding(
+			key.WithKeys("r"),
 		),
 	}
 }

@@ -9,8 +9,18 @@ import (
 	"github.com/google/go-github/v57/github"
 )
 
+const (
+  None Choice = iota
+  Merge
+  Approve
+  Close
+)
+
+type Choice int
+
 type PullRequest struct {
   Id string
+  NodeId string
   Title string
   Repo string
   Author string
@@ -18,12 +28,19 @@ type PullRequest struct {
   Body string
   CreatedAt *github.Timestamp
   UpdatedAt *github.Timestamp
+  Draft bool
+  Additions int
+  Deletions int
+  Assignee string
 
   // Branch details
   Head *github.PullRequestBranch
   Base *github.PullRequestBranch
 
   Mergeable bool
+  MergeableState string
+
+  choice Choice
   selected bool
 }
 
@@ -62,7 +79,7 @@ func (pr *PullRequest) IsMergable() string {
     Align(lipgloss.Center).
     Bold(true).
     Width(12).
-    Render("MERGEABLE")
+    Render(fmt.Sprintf("%s MERGEABLE", mergeGlyph))
 }
 
 func (pr *PullRequest) Description() string {

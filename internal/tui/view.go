@@ -24,7 +24,7 @@ func (m model) mainViewportContent(width int) string {
 	var builder strings.Builder
 
 	if m.loaded {
-    title := detailViewTitleStyle.Render(m.table.SelectedRow()[2])
+    title := detailViewTitleStyle.Width(m.detailViewWidth).Render(m.table.SelectedRow()[2])
     mergable := detailViewStateStyle.Render(m.prs[m.table.Cursor()].IsMergable())
     state := lipgloss.NewStyle().
       Background(lipgloss.Color("#1CA4D6")).
@@ -47,11 +47,11 @@ func (m model) mainViewportContent(width int) string {
     builder.WriteString("\n\n")
     // builder.WriteString(description)
 	} else {
-    defaultMsg := detailViewDefaultMsgStyle.Render("Content not loaded.")
+    defaultMsg := detailViewDefaultMsgStyle.Width(m.detailViewWidth).Render("Content not loaded.")
 		builder.WriteString(defaultMsg)
 	}
 
-	return wordwrap.String(builder.String(), width)
+	return wordwrap.String(builder.String(), m.detailViewWidth)
 }
 
 func (m model) actionViewportContent(width int) string {
@@ -64,7 +64,8 @@ func (m model) actionViewportContent(width int) string {
     for _, pr := range m.prs {
       if pr.selected {
         selected := fmt.Sprintf("[x] #%s %s\n", pr.Id, pr.Title)
-        builder.WriteString(selectedPrStyle.Render(selected))
+        s := actionViewBackgroundStyles(selected, pr.choice, m.actionViewWidth)
+        builder.WriteString(selectedPrStyle.Render(s))
       }
     }
 	} else {
@@ -105,7 +106,7 @@ func (m model) helpView() string {
 func (m model) actionView() string {
   actionView := lipgloss.NewStyle().
     MaxHeight(m.actionViewHeight).
-    Height(20).
+    Height(m.tableHeight/2).
     MaxWidth(m.actionViewWidth).
     Align(lipgloss.Left).
     BorderLeft(true).
@@ -115,4 +116,30 @@ func (m model) actionView() string {
     Render(m.actionViewportContent(m.actionViewWidth))
   
   return actionView
+}
+
+func actionViewBackgroundStyles(str string, choice Choice, width int) string {
+  listStyle := lipgloss.NewStyle().
+    Bold(true).
+    Foreground(lipgloss.Color("#fff")).
+    Width(width).
+    Height(1).
+    BorderTop(true).
+    BorderForeground(lipgloss.Color("#fff")).
+    BorderStyle(lipgloss.NormalBorder())
+
+  approvedStyle := listStyle.Copy().Background(lipgloss.Color("#12B910"))
+  mergeStyle := listStyle.Copy().Background(lipgloss.Color("#8C2CB6"))
+  closeStyle := listStyle.Copy().Background(lipgloss.Color("#C1122A"))
+
+  switch choice {
+    case Merge:
+      return mergeStyle.Render(str)
+    case Approve:
+      return approvedStyle.Render(str)
+    case Close:
+      return closeStyle.Render(str)
+    default:
+      return str
+  }
 }
