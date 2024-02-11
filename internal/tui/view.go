@@ -63,7 +63,7 @@ func (m model) actionViewportContent(width int) string {
 	if m.loaded {
     for _, pr := range m.prs {
       if pr.selected {
-        selected := fmt.Sprintf("[x] #%s %s\n", pr.Id, pr.Title)
+        selected := fmt.Sprintf("#%s %s\n", pr.Id, pr.Title)
         s := actionViewBackgroundStyles(selected, pr.choice, m.actionViewWidth)
         builder.WriteString(selectedPrStyle.Render(s))
       }
@@ -123,9 +123,11 @@ func actionViewBackgroundStyles(str string, choice Choice, width int) string {
     Bold(true).
     Foreground(lipgloss.Color("#fff")).
     Width(width).
-    Height(1).
+    Padding(0).
+    Align(lipgloss.Left).
     BorderTop(true).
-    BorderForeground(lipgloss.Color("#fff")).
+    // BorderForeground(lipgloss.Color("#fff")).
+    BorderForeground(lipgloss.Color("240")).
     BorderStyle(lipgloss.NormalBorder())
 
   approvedStyle := listStyle.Copy().Background(lipgloss.Color("#12B910"))
@@ -134,11 +136,11 @@ func actionViewBackgroundStyles(str string, choice Choice, width int) string {
 
   switch choice {
     case Merge:
-      return mergeStyle.Render(str)
+      return mergeStyle.Render(fmt.Sprintf("%s - %s", mergeGlyph, str))
     case Approve:
-      return approvedStyle.Render(str)
+      return approvedStyle.Render(fmt.Sprintf("%s - %s", successGlyph, str))
     case Close:
-      return closeStyle.Render(str)
+    return closeStyle.Render(fmt.Sprintf("%s - %s", errorGlyph, str))
     default:
       return str
   }
