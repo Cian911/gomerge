@@ -2,7 +2,10 @@ package tui
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
 
+  "github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/cian911/go-merge/internal/utils"
@@ -71,7 +74,7 @@ func (pr *PullRequest) IsMergable() string {
       Align(lipgloss.Center).
       Bold(true).
       Width(12).
-      Render("MERGEABLE")
+      Render(fmt.Sprintf("%s MERGEABLE", mergeGlyph))
   }
 
   return lipgloss.NewStyle().
@@ -82,8 +85,19 @@ func (pr *PullRequest) IsMergable() string {
     Render(fmt.Sprintf("%s MERGEABLE", mergeGlyph))
 }
 
-func (pr *PullRequest) Description() string {
-  return pr.Body
+func (pr *PullRequest) Description(width int) string {
+  g,_ := glamour.NewTermRenderer(
+		glamour.WithWordWrap(width),
+	)
+  regex := regexp.MustCompile("(?U)<!--(.|[[:space:]])*-->")
+	body := regex.ReplaceAllString(pr.Body, "")
+
+	regex = regexp.MustCompile(`((\n)+|^)([^\r\n]*\|[^\r\n]*(\n)?)+`)
+	body = regex.ReplaceAllString(body, "")
+
+	body = strings.TrimSpace(body)
+  rendered, _ := g.Render(body)
+  return rendered
 }
 
 func updatedSelectedItem(prs []PullRequest, itemId string) []PullRequest {

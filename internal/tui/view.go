@@ -36,7 +36,7 @@ func (m model) mainViewportContent(width int) string {
     stateRow := lipgloss.JoinHorizontal(lipgloss.Top, mergable, state)
 
     branch := detailViewBranchStyle.Render(m.prs[m.table.Cursor()].Branch())
-    // description := detailViewDescriptionStyle.Render(m.prs[m.table.Cursor()].Description())
+    description := detailViewDescriptionStyle.Render(m.prs[m.table.Cursor()].Description(m.detailViewWidth))
 		
     builder.WriteString("\n")
     builder.WriteString(title)
@@ -45,7 +45,7 @@ func (m model) mainViewportContent(width int) string {
     builder.WriteString("\n\n")
     builder.WriteString(stateRow)
     builder.WriteString("\n\n")
-    // builder.WriteString(description)
+    builder.WriteString(description)
 	} else {
     defaultMsg := detailViewDefaultMsgStyle.Width(m.detailViewWidth).Render("Content not loaded.")
 		builder.WriteString(defaultMsg)

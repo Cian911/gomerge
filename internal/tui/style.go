@@ -74,6 +74,6 @@ var (
   prGlyph = ""
   timeGlyph = ""
   changeReqeuestGlyp = "󰌑"
-  authorGlyph = ""
+  authorGlyph =""
   repoGlyph = ""
 )
