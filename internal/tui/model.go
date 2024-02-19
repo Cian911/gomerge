@@ -3,6 +3,8 @@ package tui
 import (
 	"context"
 
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/viewport"
@@ -26,6 +28,9 @@ type model struct {
   table    table.Model
 	viewport viewport.Model
 	spinner  spinner.Model
+  help     help.Model
+  selectedList list.Model
+  actionViewSelected bool
 
 	keyMap
 	loaded bool
@@ -39,9 +44,11 @@ func New() (*model, error) {
 
 	s := spinner.New()
 	s.Spinner = spinner.Dot
+  l := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
 
 	return &model{
 		spinner: s,
+    selectedList: l,
 
 		keyMap: defaultKeyMappings(),
 

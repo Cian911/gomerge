@@ -8,19 +8,27 @@ import (
 	"github.com/muesli/reflow/wordwrap"
 )
 
-func (m model) View() string {
+func (m *model) View() string {
 	if !m.loaded {
 		return m.spinner.View()
 	}
 
+  if m.actionViewSelected {
+    return lipgloss.JoinVertical(
+		  lipgloss.Left,
+		  m.actionView(),
+		  m.helpView(),
+	  )
+  }
+
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
-		lipgloss.JoinHorizontal(lipgloss.Top, m.mainView(), lipgloss.JoinVertical(lipgloss.Top, m.detailView(), m.actionView())),
+		lipgloss.JoinHorizontal(lipgloss.Top, m.mainView(), m.detailView()),
 		m.helpView(),
 	)
 }
 
-func (m model) mainViewportContent(width int) string {
+func (m *model) mainViewportContent(width int) string {
 	var builder strings.Builder
 
 	if m.loaded {
@@ -54,36 +62,38 @@ func (m model) mainViewportContent(width int) string {
 	return wordwrap.String(builder.String(), m.detailViewWidth)
 }
 
-func (m model) actionViewportContent(width int) string {
-	var builder strings.Builder
-  selectedPrStyle := lipgloss.NewStyle().
-    Align(lipgloss.Left).
-    Foreground(lipgloss.Color("#fff"))  
+func (m *model) actionViewportContent(width int) string {
+	// var builder strings.Builder
+  // selectedPrStyle := lipgloss.NewStyle().
+  //   Align(lipgloss.Left).
+  //   Foreground(lipgloss.Color("#fff"))  
 
 	if m.loaded {
-    for _, pr := range m.prs {
-      if pr.selected {
-        selected := fmt.Sprintf("#%s %s\n", pr.Id, pr.Title)
-        s := actionViewBackgroundStyles(selected, pr.choice, m.actionViewWidth)
-        builder.WriteString(selectedPrStyle.Render(s))
-      }
-    }
+    // for _, pr := range m.prs {
+    //   if pr.selected {
+    //     selected := fmt.Sprintf("#%s %s\n", pr.Id, pr.Title)
+    //     s := actionViewBackgroundStyles(selected, pr.choice, m.width)
+    //     builder.WriteString(selectedPrStyle.Render(s))
+    //   }
+    // }
+    return m.selectedList.View()
 	} else {
-    defaultMsg := detailViewDefaultMsgStyle.Render("Content not loaded.")
-		builder.WriteString(defaultMsg)
+  //   defaultMsg := detailViewDefaultMsgStyle.Render("No pull requests selected.")
+		// builder.WriteString(defaultMsg)
 	}
 
-	return wordwrap.String(builder.String(), width)
+  return m.selectedList.View()
+	// return wordwrap.String(builder.String(), width)
 }
 
-func (m model) mainView() string {
+func (m *model) mainView() string {
 	return mainViewStyle.
     MaxWidth(m.tableWidth).
     MaxHeight(m.tableHeight).
     Render(m.table.View())
 }
 
-func (m model) detailView() string {
+func (m *model) detailView() string {
   styledDetail := lipgloss.NewStyle().
     MaxHeight(m.detailViewHeight).
     MaxWidth(m.detailViewWidth).
@@ -95,25 +105,18 @@ func (m model) detailView() string {
 	return styledDetail
 }
 
-func (m model) helpView() string {
-	help := "ctrl-m - merge, ctrl-a - approve, ctrl-c close"
-	helpValue := helpViewStyle.Copy().Width(m.width).Render(help)
+func (m *model) helpView() string {
+	helpValue := helpViewStyle.Copy().Width(m.width).Render(m.help.View(defaultKeyMappings()))
 
 	helpViewBar := lipgloss.JoinHorizontal(lipgloss.Top, helpValue)
 	return helpViewStyle.Width(m.width).Render(helpViewBar)
 }
 
-func (m model) actionView() string {
+func (m *model) actionView() string {
   actionView := lipgloss.NewStyle().
-    MaxHeight(m.actionViewHeight).
-    Height(m.tableHeight/2).
-    MaxWidth(m.actionViewWidth).
-    Align(lipgloss.Left).
-    BorderLeft(true).
-    BorderTop(true).
-    BorderStyle(lipgloss.NormalBorder()).
-    BorderForeground(lipgloss.Color("63")).
-    Render(m.actionViewportContent(m.actionViewWidth))
+    Height(m.height).
+    Width(m.width).
+    Render(m.actionViewportContent(m.width))
   
   return actionView
 }

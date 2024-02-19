@@ -14,7 +14,7 @@ var (
 			Header.
 			BorderStyle(lipgloss.NormalBorder()).
 			BorderForeground(lipgloss.Color("240")).
-			Padding(1).
+			// Padding(1).
 			BorderBottom(true).
 			Bold(true)
 
@@ -24,9 +24,9 @@ var (
 				Background(lipgloss.Color("57"))
 
 	tableCellStyle = table.DefaultStyles().
-			Cell.
-			PaddingTop(2).
-			PaddingBottom(2)
+			Cell
+			// PaddingTop(0.1).
+			// PaddingBottom(0.1)
 
 	detailViewStyle = lipgloss.NewStyle().
 			Padding(1, 1).

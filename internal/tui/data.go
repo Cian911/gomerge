@@ -47,6 +47,12 @@ type PullRequest struct {
   selected bool
 }
 
+type selectedItem struct {
+  title string
+  id string
+  choice string
+}
+
 func (pr *PullRequest) Timestamp() string {
   return string (utils.TimeElapsed(pr.CreatedAt.Time))
 }
@@ -133,3 +139,7 @@ func mapToTableRows(prs []PullRequest) []table.Row {
 
   return rows
 }
+
+func (i selectedItem) Title() string       { return i.title }
+func (i selectedItem) ItemId() string       { return i.id }
+func (i selectedItem) FilterValue() string { return i.id }

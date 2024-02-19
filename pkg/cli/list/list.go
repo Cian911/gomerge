@@ -33,6 +33,7 @@ func List() (c *cobra.Command) {
 				}
 
 				p := tea.NewProgram(model, tea.WithAltScreen(), tea.WithMouseCellMotion())
+        p.SetWindowTitle("gomerge")
 				if err := p.Start(); err != nil {
 					log.Fatalf("Could not start tui: %v", err)
 				}
