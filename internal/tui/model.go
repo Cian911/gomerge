@@ -15,22 +15,22 @@ import (
 )
 
 type model struct {
-	width  int
-	height int
-  tableWidth int
-  tableHeight int
-  detailViewWidth int
-  detailViewHeight int
-  actionViewWidth int
-  actionViewHeight int
+	width            int
+	height           int
+	tableWidth       int
+	tableHeight      int
+	detailViewWidth  int
+	detailViewHeight int
+	actionViewWidth  int
+	actionViewHeight int
 
-  prs      []PullRequest
-  table    table.Model
-	viewport viewport.Model
-	spinner  spinner.Model
-  help     help.Model
-  selectedList list.Model
-  actionViewSelected bool
+	prs                []PullRequest
+	table              table.Model
+	viewport           viewport.Model
+	spinner            spinner.Model
+	help               help.Model
+	selectedList       list.Model
+	actionViewSelected bool
 
 	keyMap
 	loaded bool
@@ -44,11 +44,12 @@ func New() (*model, error) {
 
 	s := spinner.New()
 	s.Spinner = spinner.Dot
-  l := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
+	l := list.New(nil, itemDelegate{}, 0, 0)
+	l.SetFilteringEnabled(false)
 
 	return &model{
-		spinner: s,
-    selectedList: l,
+		spinner:      s,
+		selectedList: l,
 
 		keyMap: defaultKeyMappings(),
 
