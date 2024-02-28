@@ -15,11 +15,6 @@ func (m *model) View() string {
 	if m.actionViewSelected {
 		m.selectedList.SetHeight(20)
 		return m.selectedList.View()
-		// return lipgloss.JoinVertical(
-		// 	lipgloss.Top,
-		// 	m.actionView(),
-		// 	// m.helpView(),
-		// )
 	}
 
 	return lipgloss.JoinVertical(
@@ -64,19 +59,7 @@ func (m *model) mainViewportContent(width int) string {
 }
 
 func (m *model) actionViewportContent(width int) string {
-	// var builder strings.Builder
-	// selectedPrStyle := lipgloss.NewStyle().
-	//   Align(lipgloss.Left).
-	//   Foreground(lipgloss.Color("#fff"))
-
 	if m.loaded {
-		// for _, pr := range m.prs {
-		//   if pr.selected {
-		//     selected := fmt.Sprintf("#%s %s\n", pr.Id, pr.Title)
-		//     s := actionViewBackgroundStyles(selected, pr.choice, m.width)
-		//     builder.WriteString(selectedPrStyle.Render(s))
-		//   }
-		// }
 		return lipgloss.NewStyle().
 			Height(m.height).
 			Width(m.width).
@@ -87,7 +70,6 @@ func (m *model) actionViewportContent(width int) string {
 	}
 
 	return ""
-	// return wordwrap.String(builder.String(), width)
 }
 
 func (m *model) mainView() string {
@@ -119,38 +101,4 @@ func (m *model) helpView() string {
 func (m *model) actionView() string {
 	m.selectedList.Title = "Pull Requests"
 	return m.selectedList.View()
-	// av := lipgloss.NewStyle().
-	// 	// Height(m.height).
-	// 	// Width(m.width).
-	// 	Render(m.actionViewportContent(m.width))
-	//
-	// return av
 }
-
-// func actionViewBackgroundStyles(str string, choice Choice, width int) string {
-// 	listStyle := lipgloss.NewStyle().
-// 		Bold(true).
-// 		Foreground(lipgloss.Color("#fff")).
-// 		Width(width).
-// 		Padding(0).
-// 		Align(lipgloss.Left).
-// 		BorderTop(true).
-// 		// BorderForeground(lipgloss.Color("#fff")).
-// 		BorderForeground(lipgloss.Color("240")).
-// 		BorderStyle(lipgloss.NormalBorder())
-//
-// 	approvedStyle := listStyle.Copy().Background(lipgloss.Color("#12B910"))
-// 	mergeStyle := listStyle.Copy().Background(lipgloss.Color("#8C2CB6"))
-// 	closeStyle := listStyle.Copy().Background(lipgloss.Color("#C1122A"))
-//
-// 	switch choice {
-// 	case Merge:
-// 		return mergeStyle.Render(fmt.Sprintf("%s - %s", mergeGlyph, str))
-// 	case Approve:
-// 		return approvedStyle.Render(fmt.Sprintf("%s - %s", successGlyph, str))
-// 	case Close:
-// 		return closeStyle.Render(fmt.Sprintf("%s - %s", errorGlyph, str))
-// 	default:
-// 		return str
-// 	}
-// }

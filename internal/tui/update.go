@@ -223,10 +223,11 @@ func adaptiveColumnWidths(tableWidth int) []table.Column {
 func (m *model) applySelection(choice Choice) []table.Row {
 	itemId := m.table.SelectedRow()[1]
 	m.prs[m.table.Cursor()].choice = choice
-	// item := m.prs[m.table.Cursor()]
+	item := m.prs[m.table.Cursor()]
 	i := selectedItem{
-		title: "Tile",
-		desc:  "This is a test description",
+		title:  item.Title,
+		repo:   item.Repo,
+		choice: choice,
 	}
 	items := m.selectedList.Items()
 	items = append(items, i)
@@ -234,7 +235,6 @@ func (m *model) applySelection(choice Choice) []table.Row {
 	if choice == None {
 		m.selectedList.RemoveItem(m.selectedList.Index())
 	} else {
-		// m.selectedList.InsertItem(0, i)
 		m.selectedList.SetItems(items)
 	}
 	m.prs = updatedSelectedItem(m.prs, itemId)

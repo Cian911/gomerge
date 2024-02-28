@@ -139,20 +139,24 @@ func mapToTableRows(prs []PullRequest) []table.Row {
 }
 
 type selectedItem struct {
-	title, desc string
+	title, repo string
+	choice      Choice
 }
 
 func (i selectedItem) Title() string       { return i.title }
-func (i selectedItem) Description() string { return i.desc }
+func (i selectedItem) Description() string { return i.repo }
 func (i selectedItem) FilterValue() string { return i.title }
 
 var (
 	titleStyle        = lipgloss.NewStyle().MarginLeft(2)
-	itemStyle         = lipgloss.NewStyle().PaddingLeft(4)
-	selectedItemStyle = lipgloss.NewStyle().PaddingLeft(2).Foreground(lipgloss.Color("170"))
+	itemStyle         = lipgloss.NewStyle().PaddingLeft(2).Bold(true).MarginBottom(1)
+	selectedItemStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#000")).Bold(true).MarginBottom(1)
 	paginationStyle   = list.DefaultStyles().PaginationStyle.PaddingLeft(4)
 	helpStyle         = list.DefaultStyles().HelpStyle.PaddingLeft(4).PaddingBottom(1)
 	quitTextStyle     = lipgloss.NewStyle().Margin(1, 0, 2, 4)
+	approvedStyle     = lipgloss.NewStyle().Background(lipgloss.Color("#12B910"))
+	mergeStyle        = lipgloss.NewStyle().Background(lipgloss.Color("#8C2CB6"))
+	closeStyle        = lipgloss.NewStyle().Background(lipgloss.Color("#C1122A"))
 )
 
 type itemDelegate struct{}
@@ -166,7 +170,16 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 		return
 	}
 
-	str := fmt.Sprintf("%d. %s", index+1, i)
+	str := fmt.Sprintf("%d. %s: %s - %v", index+1, i.repo, i.title, i.choice)
+
+	switch i.choice {
+	case Merge:
+		str = mergeStyle.Render(str)
+	case Approve:
+		str = approvedStyle.Render(str)
+	case Close:
+		str = closeStyle.Render(str)
+	}
 
 	fn := itemStyle.Render
 	if index == m.Index() {
