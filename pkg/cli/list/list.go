@@ -127,16 +127,19 @@ func NewCommand() (c *cobra.Command) {
 			}
 
 			selectedIds := promptAndFormat(pullRequestsArray, table)
-			for _, id := range selectedIds {
+			for i, id := range selectedIds {
 
 				if approveOnly {
 					gitclient.ApprovePullRequest(ghClient, ctx, id, skip)
 				} else if closePr {
 					gitclient.ClosePullRequest(ghClient, ctx, id, skip)
 				} else {
-					gitclient.MergePullRequest(ghClient, ctx, id, &mergeMethod, skip)
 					// delay between merges to allow other active PRs to get synced
-					time.Sleep(time.Duration(delay) * time.Second)
+					if i > 0 {
+						time.Sleep(time.Duration(delay) * time.Second)
+					}
+					gitclient.MergePullRequest(ghClient, ctx, id, &mergeMethod, skip)
+
 				}
 			}
 		},
