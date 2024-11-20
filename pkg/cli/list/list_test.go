@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cian911/go-merge/pkg/gitclient"
 	"github.com/cian911/go-merge/pkg/printer"
-	"github.com/google/go-github/v45/github"
 	"github.com/olekukonko/tablewriter"
 	"github.com/stretchr/testify/assert"
 )
@@ -37,47 +37,30 @@ func TestInitTable(t *testing.T) {
 }
 
 func TestFormatTable(t *testing.T) {
-	var (
-		org  = "Cian911"
-		repo = "syncwave"
-	)
-
 	t.Run("It returns a string array", func(t *testing.T) {
 		number := 1
 		state := "#open"
 		title := "My Pr"
 		createdAt := time.Now()
 
-		pr := &github.PullRequest{
-			Number:    &number,
-			State:     &state,
-			Title:     &title,
-			CreatedAt: &createdAt,
+		pr := &gitclient.PullRequest{
+			RepositoryOwner: "Cian911",
+			RepositoryName:  "syncwave",
+			Number:          number,
+			State:           state,
+			Title:           title,
+			CheckConclusion: "SUCCESS",
+			CreatedAt:       createdAt,
 		}
 
-		got := formatTable(pr, org, repo)
+		got := formatTable(pr)
 		want := []string{
 			"#1",
-			"#open",
+			"#open ✅",
 			"My Pr",
 			"Cian911/syncwave",
-			printer.FormatTime(pr.CreatedAt),
+			printer.FormatTime(&pr.CreatedAt),
 		}
-
-		assert.Equal(t, got, want)
-	})
-
-	t.Run("It returns an empty string array when attrs are not present in pr struct", func(t *testing.T) {
-		state := "#open"
-		title := "My Pr"
-
-		pr := &github.PullRequest{
-			State: &state,
-			Title: &title,
-		}
-
-		got := formatTable(pr, org, repo)
-		want := []string(nil)
 
 		assert.Equal(t, got, want)
 	})
