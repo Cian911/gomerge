@@ -60,7 +60,6 @@ Available Commands:
 Flags:
   -a, --approve                      Pass an optional approve flag as an argument which will only approve and not merge selected repos.
       --close                        Pass an optional argument to close a pull request.
-      --commit-msg string            Add a custom message when approving a pull request.
   -c, --config string                Pass an optional config file as an argument with list of repositories.
   -d, --delay int                    Set the value of delay, which will determine how long to wait between mergeing pull requests. Default is (6) seconds. (default 6)
   -e, --enterprise-base-url string   For Github Enterprise users, you can pass your enterprise base. Format: http(s)://[hostname]/

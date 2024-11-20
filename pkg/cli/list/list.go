@@ -86,7 +86,6 @@ func NewCommand() (c *cobra.Command) {
 
 			pullRequestsArray := []*gitclient.PullRequest{}
 			table := initTable()
-			ctx = commitMsg(ctx, viper.GetString("commit-msg"))
 
 			var org string
 			var repositories []string = nil

@@ -194,14 +194,12 @@ func ApprovePullRequest(ghClient *githubv4.Client, ctx context.Context, prId git
 		fmt.Printf("PR %v: %v\n", prId, review.State)
 	}
 }
+
 func MergePullRequest(ghClient *githubv4.Client, ctx context.Context, prId githubv4.ID, mergeMethod *githubv4.PullRequestMergeMethod, skip bool) {
 
-	commitMessage := githubv4.String(defaultCommitMsg())
-
 	input := githubv4.MergePullRequestInput{
-		PullRequestID:  prId,
-		CommitHeadline: &commitMessage,
-		MergeMethod:    mergeMethod,
+		PullRequestID: prId,
+		MergeMethod:   mergeMethod,
 	}
 
 	var m struct {
@@ -253,10 +251,6 @@ func ClosePullRequest(ghClient *githubv4.Client, ctx context.Context, prId githu
 
 	fmt.Printf("PR %s#%d closed: %v\n", pr.Repository.NameWithOwner, pr.Number, pr.Closed)
 
-}
-
-func defaultCommitMsg() string {
-	return "Merged by gomerge CLI."
 }
 
 func DefaultApproveMsg() string {
