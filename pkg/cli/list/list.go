@@ -207,7 +207,7 @@ func statusIcon(state string) (icon string) {
 func formatTable(pr *gitclient.PullRequest) (data []string) {
 	data = []string{
 		fmt.Sprintf("#%d", pr.Number),
-		fmt.Sprintf("%s %s", pr.State, statusIcon(pr.CheckConclusion)),
+		fmt.Sprintf("%s %s", pr.State, statusIcon(pr.StatusRollup)),
 		pr.Title,
 		fmt.Sprintf("%s/%s", pr.RepositoryOwner, pr.RepositoryName),
 		printer.FormatTime(&pr.CreatedAt),

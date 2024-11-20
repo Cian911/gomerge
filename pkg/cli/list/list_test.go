@@ -49,7 +49,7 @@ func TestFormatTable(t *testing.T) {
 			Number:          number,
 			State:           state,
 			Title:           title,
-			CheckConclusion: "SUCCESS",
+			StatusRollup:    "SUCCESS",
 			CreatedAt:       createdAt,
 		}
 

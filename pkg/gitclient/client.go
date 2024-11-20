@@ -21,21 +21,15 @@ type PullRequest struct {
 	State           string
 	CreatedAt       time.Time
 	ID              githubv4.ID
-	CheckConclusion string
+	StatusRollup    string
 }
 
 type Commits struct {
 	Nodes []struct {
 		Commit struct {
-			CheckSuites struct {
-				Nodes []struct {
-					App struct {
-						Name githubv4.String
-					}
-					Status     githubv4.String
-					Conclusion githubv4.String
-				}
-			} `graphql:"checkSuites(first: $maxCheckSuites)"`
+			StatusCheckRollup struct {
+				State githubv4.String
+			}
 		}
 	}
 }
@@ -104,40 +98,9 @@ func ClientV4(githubToken string, ctx context.Context, isEnterprise bool) (clien
 	return
 }
 
-func ReduceCheckConclusions(commits *Commits) string {
-	// Check if there are no commits
-	if len(commits.Nodes) == 0 {
-		return ""
-	}
-
-	commit := commits.Nodes[0]
-
-	status := ""
-	for _, checkSuite := range commit.Commit.CheckSuites.Nodes {
-		if checkSuite.Status == "QUEUED" {
-			continue
-		}
-		if checkSuite.Status == "IN_PROGRESS" || checkSuite.Status == "PENDING" || checkSuite.Status == "WAITING" {
-			status = "IN_PROGRESS"
-			break
-		}
-		if checkSuite.Conclusion == "FAILURE" || checkSuite.Status == "CANCELLED" || checkSuite.Status == "ACTION_REQUIRED" {
-			status = "FAILURE"
-			break
-		}
-		if checkSuite.Conclusion == "SUCCESS" {
-			status = "SUCCESS"
-		}
-
-	}
-
-	return status
-}
-
 func GetPullRequests(client *githubv4.Client, ctx context.Context, owner string, repo string) ([]*PullRequest, error) {
 	vars := map[string]interface{}{
-		"maxPullRequests": githubv4.Int(10),
-		"maxCheckSuites":  githubv4.Int(10),
+		"maxPullRequests": githubv4.Int(100),
 		"owner":           githubv4.String(owner),
 	}
 
@@ -183,7 +146,7 @@ func GetPullRequests(client *githubv4.Client, ctx context.Context, owner string,
 				State:           string(pr.State),
 				CreatedAt:       pr.CreatedAt.Time,
 				ID:              pr.ID,
-				CheckConclusion: ReduceCheckConclusions(&pr.Commits),
+				StatusRollup:    string(pr.Commits.Nodes[0].Commit.StatusCheckRollup.State),
 			}
 
 			pullRequests = append(pullRequests, pullRequest)
