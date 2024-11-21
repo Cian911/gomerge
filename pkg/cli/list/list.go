@@ -29,7 +29,7 @@ const (
 	TokenEnvVar = "GITHUB_TOKEN"
 )
 
-func GetMergeMethod() githubv4.PullRequestMergeMethod {
+func getMergeMethod() githubv4.PullRequestMergeMethod {
 	method := viper.GetString("merge-method")
 	switch method {
 	case "merge":
@@ -45,6 +45,15 @@ func GetMergeMethod() githubv4.PullRequestMergeMethod {
 	return githubv4.PullRequestMergeMethodMerge
 }
 
+func getLabels() (labels []githubv4.String) {
+	raw_labels := viper.GetStringSlice("label")
+	labels = make([]githubv4.String, len(raw_labels))
+	for i, label := range raw_labels {
+		labels[i] = githubv4.String(label)
+	}
+	return
+}
+
 // TODO: Refactor NewCommnd
 func NewCommand() (c *cobra.Command) {
 	c = &cobra.Command{
@@ -53,9 +62,10 @@ func NewCommand() (c *cobra.Command) {
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := cmd.Context()
 			orgRepo := viper.GetString("repo")
+			labels := getLabels()
 			configFile := viper.GetString("config")
 			approveOnly = viper.GetBool("approve")
-			mergeMethod := GetMergeMethod()
+			mergeMethod := getMergeMethod()
 			flagToken := viper.GetString("token")
 			skip := viper.GetBool("skip")
 			closePr := viper.GetBool("close")
@@ -112,7 +122,7 @@ func NewCommand() (c *cobra.Command) {
 			}
 
 			for _, v := range repositories {
-				pullRequests, err := gitclient.GetPullRequests(ghClient, ctx, org, v)
+				pullRequests, err := gitclient.GetPullRequests(ghClient, ctx, org, v, &labels)
 				if err != nil {
 					log.Fatal(err)
 				}

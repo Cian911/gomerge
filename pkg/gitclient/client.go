@@ -24,35 +24,6 @@ type PullRequest struct {
 	StatusRollup    string
 }
 
-type Commits struct {
-	Nodes []struct {
-		Commit struct {
-			StatusCheckRollup struct {
-				State githubv4.String
-			}
-		}
-	}
-}
-
-type Repository struct {
-	NameWithOwner githubv4.String
-	Owner         struct {
-		Login githubv4.String
-	}
-	Name         githubv4.String
-	PullRequests struct {
-		Nodes []struct {
-			Number    githubv4.Int
-			Title     githubv4.String
-			State     githubv4.String
-			Url       githubv4.URI
-			CreatedAt githubv4.DateTime
-			ID        githubv4.ID
-			Commits   Commits `graphql:"commits(last:1)"`
-		}
-	} `graphql:"pullRequests(states: [OPEN], first: $maxPullRequests, orderBy: {field: CREATED_AT, direction: DESC})"`
-}
-
 func Client(githubToken string, ctx context.Context, isEnterprise bool) (client *github.Client) {
 	tokenSource := oauth2.StaticTokenSource(
 		&oauth2.Token{
@@ -98,41 +69,115 @@ func ClientV4(githubToken string, ctx context.Context, isEnterprise bool) (clien
 	return
 }
 
-func GetPullRequests(client *githubv4.Client, ctx context.Context, owner string, repo string) ([]*PullRequest, error) {
+type commits struct {
+	Nodes []struct {
+		Commit struct {
+			StatusCheckRollup struct {
+				State githubv4.String
+			}
+		}
+	}
+}
+
+type pullRequests struct {
+	Nodes []struct {
+		Number    githubv4.Int
+		Title     githubv4.String
+		State     githubv4.String
+		Url       githubv4.URI
+		CreatedAt githubv4.DateTime
+		ID        githubv4.ID
+		Commits   commits `graphql:"commits(last:1)"`
+	}
+}
+
+// NB: githubv4 uses struct tags to define the GraphQL query. To omit the labels
+// argument to pullRequests(), we need to define a compeltely new type. Luckily
+// these are convertible to each other as of go 1.8.
+type repository struct {
+	NameWithOwner githubv4.String
+	Owner         struct {
+		Login githubv4.String
+	}
+	Name         githubv4.String
+	PullRequests pullRequests `graphql:"pullRequests(states: [OPEN], first: $maxPullRequests, orderBy: {field: CREATED_AT, direction: DESC})"`
+}
+
+type repositoryWithPRLabels struct {
+	NameWithOwner githubv4.String
+	Owner         struct {
+		Login githubv4.String
+	}
+	Name         githubv4.String
+	PullRequests pullRequests `graphql:"pullRequests(states: [OPEN], labels: $labels, first: $maxPullRequests, orderBy: {field: CREATED_AT, direction: DESC})"`
+}
+
+func GetPullRequests(client *githubv4.Client, ctx context.Context, owner string, repo string, labels *[]githubv4.String) ([]*PullRequest, error) {
+
 	vars := map[string]interface{}{
 		"maxPullRequests": githubv4.Int(100),
 		"owner":           githubv4.String(owner),
 	}
+	if len(*labels) > 0 {
+		vars["labels"] = labels
+	}
 
-	repos := []Repository{}
+	repos := []repository{}
 
 	if repo == "" {
-		var q struct {
-			RepositoryOwner struct {
-				Repositories struct {
-					Nodes []Repository
-				} `graphql:"repositories(first: $maxRepositories, isFork: false, isArchived: false, isLocked: false, orderBy: {field: UPDATED_AT, direction: DESC})"`
-			} `graphql:"repositoryOwner(login: $owner)"`
-		}
 		vars["maxRepositories"] = githubv4.Int(100)
-		err := client.Query(ctx, &q, vars)
-		if err != nil {
-			return nil, err
-		}
-		repos = append(repos, q.RepositoryOwner.Repositories.Nodes...)
-		for _, repo := range repos {
-			fmt.Printf("Found repo: %v\n", repo.NameWithOwner)
+		if len(*labels) > 0 {
+			var q struct {
+				RepositoryOwner struct {
+					Repositories struct {
+						Nodes []repositoryWithPRLabels
+					} `graphql:"repositories(first: $maxRepositories, isFork: false, isArchived: false, isLocked: false, orderBy: {field: UPDATED_AT, direction: DESC})"`
+				} `graphql:"repositoryOwner(login: $owner)"`
+			}
+			err := client.Query(ctx, &q, vars)
+			if err != nil {
+				return nil, err
+			}
+			for _, repo := range q.RepositoryOwner.Repositories.Nodes {
+				repos = append(repos, repository(repo))
+			}
+		} else {
+			var q struct {
+				RepositoryOwner struct {
+					Repositories struct {
+						Nodes []repository
+					} `graphql:"repositories(first: $maxRepositories, isFork: false, isArchived: false, isLocked: false, orderBy: {field: UPDATED_AT, direction: DESC})"`
+				} `graphql:"repositoryOwner(login: $owner)"`
+			}
+			err := client.Query(ctx, &q, vars)
+			if err != nil {
+				return nil, err
+			}
+			for _, repo := range q.RepositoryOwner.Repositories.Nodes {
+				repos = append(repos, repository(repo))
+			}
 		}
 	} else {
-		var q struct {
-			Repository Repository `graphql:"repository(owner: $owner, name: $name)"`
-		}
 		vars["name"] = githubv4.String(repo)
-		err := client.Query(ctx, &q, vars)
-		if err != nil {
-			return nil, err
+		if len(*labels) > 0 {
+			var q struct {
+				Repository repositoryWithPRLabels `graphql:"repository(owner: $owner, name: $name)"`
+			}
+			err := client.Query(ctx, &q, vars)
+			if err != nil {
+				return nil, err
+			}
+			repos = append(repos, repository(q.Repository))
+		} else {
+			var q struct {
+				Repository repository `graphql:"repository(owner: $owner, name: $name)"`
+			}
+			err := client.Query(ctx, &q, vars)
+			if err != nil {
+				return nil, err
+			}
+			repos = append(repos, q.Repository)
 		}
-		repos = append(repos, q.Repository)
 	}
 
 	pullRequests := []*PullRequest{}
