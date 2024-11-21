@@ -137,18 +137,21 @@ func NewCommand() (c *cobra.Command) {
 			}
 
 			selectedIds := promptAndFormat(pullRequestsArray, table)
-			for i, id := range selectedIds {
+			for i, pr := range selectedIds {
 
 				if approveOnly {
-					gitclient.ApprovePullRequest(ghClient, ctx, id, skip)
+					gitclient.ApprovePullRequest(ghClient, ctx, pr, skip)
 				} else if closePr {
-					gitclient.ClosePullRequest(ghClient, ctx, id, skip)
+					gitclient.ClosePullRequest(ghClient, ctx, pr, skip)
 				} else {
 					// delay between merges to allow other active PRs to get synced
 					if i > 0 {
 						time.Sleep(time.Duration(delay) * time.Second)
 					}
-					gitclient.MergePullRequest(ghClient, ctx, id, &mergeMethod, skip)
+					if pr.NeedsReview {
+						gitclient.ApprovePullRequest(ghClient, ctx, pr, skip)
+					}
+					gitclient.MergePullRequest(ghClient, ctx, pr, &mergeMethod, skip)
 
 				}
 			}
@@ -158,7 +161,7 @@ func NewCommand() (c *cobra.Command) {
 	return
 }
 
-func promptAndFormat(pullRequests []*gitclient.PullRequest, table *tablewriter.Table) []githubv4.ID {
+func promptAndFormat(pullRequests []*gitclient.PullRequest, table *tablewriter.Table) (selectedPullRequests []*gitclient.PullRequest) {
 	prIds := []string{}
 
 	for _, pr := range pullRequests {
@@ -175,16 +178,16 @@ func promptAndFormat(pullRequests []*gitclient.PullRequest, table *tablewriter.T
 
 	prompt, selectedIds := selectPrIds(prIds)
 	survey.AskOne(prompt, &selectedIds)
-	indices := []githubv4.ID{}
-	for _, id := range selectedIds {
-		for i, prId := range prIds {
+	selectedPullRequests = make([]*gitclient.PullRequest, len(selectedIds))
+	for idIndex, id := range selectedIds {
+		for prIndex, prId := range prIds {
 			if id == prId {
-				indices = append(indices, pullRequests[i].ID)
+				selectedPullRequests[idIndex] = pullRequests[prIndex]
 				break
 			}
 		}
 	}
-	return indices
+	return
 }
 
 func initTable() (table *tablewriter.Table) {

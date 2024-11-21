@@ -22,6 +22,7 @@ type PullRequest struct {
 	CreatedAt       time.Time
 	ID              githubv4.ID
 	StatusRollup    string
+	NeedsReview     bool
 }
 
 func Client(githubToken string, ctx context.Context, isEnterprise bool) (client *github.Client) {
@@ -88,6 +89,18 @@ type pullRequests struct {
 		CreatedAt githubv4.DateTime
 		ID        githubv4.ID
 		Commits   commits `graphql:"commits(last:1)"`
+		// NB: this only works for classic branch protection rules. Repository
+		// rulesets don't appear to be visible in the API
+		BaseRef struct {
+			BranchProtectionRule struct {
+				RequiredApprovingReviewCount githubv4.Int
+			}
+		}
+		Reviews struct {
+			Nodes []struct {
+				AuthorCanPushToRepository githubv4.Boolean
+			}
+		} `graphql:"reviews(first: 100, states: [APPROVED])"`
 	}
 }
 
@@ -183,6 +196,12 @@ func GetPullRequests(client *githubv4.Client, ctx context.Context, owner string,
 	pullRequests := []*PullRequest{}
 	for _, repo := range repos {
 		for _, pr := range repo.PullRequests.Nodes {
+			reviews := 0
+			for _, review := range pr.Reviews.Nodes {
+				if review.AuthorCanPushToRepository {
+					reviews++
+				}
+			}
 			pullRequest := &PullRequest{
 				RepositoryOwner: string(repo.Owner.Login),
 				RepositoryName:  string(repo.Name),
@@ -192,6 +211,7 @@ func GetPullRequests(client *githubv4.Client, ctx context.Context, owner string,
 				CreatedAt:       pr.CreatedAt.Time,
 				ID:              pr.ID,
 				StatusRollup:    string(pr.Commits.Nodes[0].Commit.StatusCheckRollup.State),
+				NeedsReview:     reviews < int(pr.BaseRef.BranchProtectionRule.RequiredApprovingReviewCount),
 			}
 
 			pullRequests = append(pullRequests, pullRequest)
@@ -201,34 +221,28 @@ func GetPullRequests(client *githubv4.Client, ctx context.Context, owner string,
 	return pullRequests, nil
 }
 
-func ApprovePullRequest(ghClient *githubv4.Client, ctx context.Context, prId githubv4.ID, skip bool) {
+func ApprovePullRequest(ghClient *githubv4.Client, ctx context.Context, pr *PullRequest, skip bool) {
 
-	commitMessage := ctx.Value("message").(githubv4.String)
+	commitMessage := githubv4.String(DefaultApproveMsg())
 	event := githubv4.PullRequestReviewEventApprove
 
 	input := githubv4.AddPullRequestReviewInput{
-		PullRequestID: prId,
+		PullRequestID: pr.ID,
 		Body:          &commitMessage,
 		Event:         &event,
 	}
 
 	var m struct {
 		AddPullRequestReview struct {
-			PullRequest struct {
-				Number     githubv4.Int
-				Repository struct {
-					NameWithOwner githubv4.String
-				}
-			}
 			PullRequestReview struct {
-				State githubv4.String
+				State githubv4.PullRequestReviewState
 			}
 		} `graphql:"addPullRequestReview(input: $input)"`
 	}
 
 	err := ghClient.Mutate(ctx, &m, input, nil)
 	if err != nil && !skip {
-		log.Printf("Could not approve pull request %v, did you try to approve your on pull request? - %v\n", prId, err)
+		log.Printf("Could not approve pull request %s/%s#%d - %v\n", pr.RepositoryOwner, pr.RepositoryName, pr.Number, err)
 	}
 
 	review := m.AddPullRequestReview.PullRequestReview
@@ -236,14 +250,14 @@ func ApprovePullRequest(ghClient *githubv4.Client, ctx context.Context, prId git
 	if err != nil && skip {
 		fmt.Printf("Could not approve pull request, skipping.")
 	} else {
-		fmt.Printf("PR %v: %v\n", prId, review.State)
+		fmt.Printf("%s/%s#%d: %v\n", pr.RepositoryOwner, pr.RepositoryName, pr.Number, review.State)
 	}
 }
 
-func MergePullRequest(ghClient *githubv4.Client, ctx context.Context, prId githubv4.ID, mergeMethod *githubv4.PullRequestMergeMethod, skip bool) {
+func MergePullRequest(ghClient *githubv4.Client, ctx context.Context, pr *PullRequest, mergeMethod *githubv4.PullRequestMergeMethod, skip bool) {
 
 	input := githubv4.MergePullRequestInput{
-		PullRequestID: prId,
+		PullRequestID: pr.ID,
 		MergeMethod:   mergeMethod,
 	}
 
@@ -251,6 +265,7 @@ func MergePullRequest(ghClient *githubv4.Client, ctx context.Context, prId githu
 		MergePullRequest struct {
 			PullRequest struct {
 				Merged     bool
+				State      githubv4.PullRequestState
 				Number     githubv4.Int
 				Repository struct {
 					NameWithOwner githubv4.String
@@ -261,24 +276,25 @@ func MergePullRequest(ghClient *githubv4.Client, ctx context.Context, prId githu
 
 	err := ghClient.Mutate(ctx, &m, input, nil)
 	if err != nil {
-		log.Printf("Could not merge PR %s, skipping: %v\n", prId, err)
+		log.Printf("Could not merge %s/%s#%d - %v\n", pr.RepositoryOwner, pr.RepositoryName, pr.Number, err)
 	}
 
-	pr := m.MergePullRequest.PullRequest
+	prOut := m.MergePullRequest.PullRequest
+	fmt.Printf("%s/%s#%d merged: %v\n", pr.RepositoryOwner, pr.RepositoryName, pr.Number, prOut.State)
 
-	fmt.Printf("PR %s#%d merged: %v\n", pr.Repository.NameWithOwner, pr.Number, pr.Merged)
 }
 
-func ClosePullRequest(ghClient *githubv4.Client, ctx context.Context, prId githubv4.ID, skip bool) {
+func ClosePullRequest(ghClient *githubv4.Client, ctx context.Context, pr *PullRequest, skip bool) {
 
 	input := githubv4.ClosePullRequestInput{
-		PullRequestID: prId,
+		PullRequestID: pr.ID,
 	}
 
 	var m struct {
 		ClosePullRequest struct {
 			PullRequest struct {
 				Closed     bool
+				State      githubv4.PullRequestState
 				Number     githubv4.Int
 				Repository struct {
 					NameWithOwner githubv4.String
@@ -289,12 +305,12 @@ func ClosePullRequest(ghClient *githubv4.Client, ctx context.Context, prId githu
 
 	err := ghClient.Mutate(ctx, &m, input, nil)
 	if err != nil {
-		log.Printf("Could not close PR %s, skipping: %v\n", prId, err)
+		log.Printf("Could not close %s/%s#%d - %v\n", pr.RepositoryOwner, pr.RepositoryName, pr.Number, err)
 	}
 
-	pr := m.ClosePullRequest.PullRequest
+	prOut := m.ClosePullRequest.PullRequest
 
-	fmt.Printf("PR %s#%d closed: %v\n", pr.Repository.NameWithOwner, pr.Number, pr.Closed)
+	fmt.Printf("%s/%s#%d merged: %v\n", pr.RepositoryOwner, pr.RepositoryName, pr.Number, prOut.State)
 
 }
 
