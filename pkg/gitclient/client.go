@@ -6,7 +6,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/google/go-github/v45/github"
 	"github.com/shurcooL/githubv4"
 
 	"github.com/spf13/viper"
@@ -23,31 +22,6 @@ type PullRequest struct {
 	ID              githubv4.ID
 	StatusRollup    string
 	NeedsReview     bool
-}
-
-func Client(githubToken string, ctx context.Context, isEnterprise bool) (client *github.Client) {
-	tokenSource := oauth2.StaticTokenSource(
-		&oauth2.Token{
-			AccessToken: githubToken,
-		},
-	)
-
-	tokenContext := oauth2.NewClient(ctx, tokenSource)
-
-	if isEnterprise {
-		baseUrl := viper.GetString("enterprise-base-url")
-		c, err := github.NewEnterpriseClient(baseUrl, baseUrl, tokenContext)
-
-		if err != nil {
-			log.Fatalf("Could not auth enterprise client: %v", err)
-		}
-
-		client = c
-	} else {
-		client = github.NewClient(tokenContext)
-	}
-
-	return
 }
 
 func ClientV4(githubToken string, ctx context.Context, isEnterprise bool) (client *githubv4.Client) {
