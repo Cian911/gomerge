@@ -149,8 +149,8 @@ func (i selectedItem) FilterValue() string { return i.title }
 
 var (
 	titleStyle        = lipgloss.NewStyle().MarginLeft(2)
-	itemStyle         = lipgloss.NewStyle().PaddingLeft(2).Bold(true).MarginBottom(1)
-	selectedItemStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#000")).Bold(true).MarginBottom(1)
+	itemStyle         = lipgloss.NewStyle().PaddingLeft(2).Bold(true)
+	selectedItemStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#000")).Bold(true)
 	paginationStyle   = list.DefaultStyles().PaginationStyle.PaddingLeft(4)
 	helpStyle         = list.DefaultStyles().HelpStyle.PaddingLeft(4).PaddingBottom(1)
 	quitTextStyle     = lipgloss.NewStyle().Margin(1, 0, 2, 4)
@@ -170,7 +170,7 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 		return
 	}
 
-	str := fmt.Sprintf("%d. %s: %s - %v", index+1, i.repo, i.title, i.choice)
+	str := fmt.Sprintf("%d. %s: %s", index+1, i.repo, i.title)
 
 	switch i.choice {
 	case Merge:
