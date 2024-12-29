@@ -35,7 +35,13 @@ func TestReadConfigFile(t *testing.T) {
 		wantExt := "yaml"
 
 		if gotFilename != wantFilename || gotExt != wantExt {
-			t.Errorf("got: %s, want: %s, got: %s, want: %s", gotFilename, wantFilename, gotExt, wantExt)
+			t.Errorf(
+				"got: %s, want: %s, got: %s, want: %s",
+				gotFilename,
+				wantFilename,
+				gotExt,
+				wantExt,
+			)
 		}
 	})
 }
