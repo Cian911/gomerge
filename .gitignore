@@ -1,3 +1,4 @@
 *.swp
+debug.log
 bin/*
 dist/

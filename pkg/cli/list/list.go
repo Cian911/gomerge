@@ -1,7 +1,6 @@
 package list
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
@@ -9,13 +8,14 @@ import (
 	"time"
 
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/cian911/go-merge/pkg/gitclient"
-	"github.com/cian911/go-merge/pkg/printer"
-	"github.com/cian911/go-merge/pkg/utils"
 	"github.com/olekukonko/tablewriter"
 	"github.com/shurcooL/githubv4"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/cian911/go-merge/pkg/gitclient"
+	"github.com/cian911/go-merge/pkg/printer"
+	"github.com/cian911/go-merge/pkg/utils"
 )
 
 var (
@@ -26,35 +26,12 @@ var (
 )
 
 const (
-	TokenEnvVar = "GITHUB_TOKEN"
+	TokenEnvVar    = "GITHUB_TOKEN"
+	STATUS_SUCCESS = 0
+	STATUS_WAITING = 1
+	STATUS_FAILED  = 2
 )
 
-func getMergeMethod() githubv4.PullRequestMergeMethod {
-	method := viper.GetString("merge-method")
-	switch method {
-	case "merge":
-		return githubv4.PullRequestMergeMethodMerge
-	case "rebase":
-		return githubv4.PullRequestMergeMethodRebase
-	case "squash":
-		return githubv4.PullRequestMergeMethodSquash
-	}
-	if method != "" {
-		log.Fatalf("Unknown merge method %s. Please use one of the following: merge, rebase, squash", method)
-	}
-	return githubv4.PullRequestMergeMethodMerge
-}
-
-func getLabels() (labels []githubv4.String) {
-	raw_labels := viper.GetStringSlice("label")
-	labels = make([]githubv4.String, len(raw_labels))
-	for i, label := range raw_labels {
-		labels[i] = githubv4.String(label)
-	}
-	return
-}
-
-// TODO: Refactor NewCommnd
 func NewCommand() (c *cobra.Command) {
 	c = &cobra.Command{
 		Use:   "list",
@@ -78,7 +55,9 @@ func NewCommand() (c *cobra.Command) {
 			}
 
 			if !configPresent && len(orgRepo) <= 0 {
-				log.Fatal("You must pass either a config file or repository as argument to continue.")
+				log.Fatal(
+					"You must pass either a config file or repository as argument to continue.",
+				)
 			}
 			configToken := viper.GetString("token")
 
@@ -138,7 +117,6 @@ func NewCommand() (c *cobra.Command) {
 
 			selectedIds := promptAndFormat(pullRequestsArray, table)
 			for i, pr := range selectedIds {
-
 				if approveOnly {
 					gitclient.ApprovePullRequest(ghClient, ctx, pr, skip)
 				} else if closePr {
@@ -161,18 +139,31 @@ func NewCommand() (c *cobra.Command) {
 	return
 }
 
-func promptAndFormat(pullRequests []*gitclient.PullRequest, table *tablewriter.Table) (selectedPullRequests []*gitclient.PullRequest) {
+func promptAndFormat(
+	pullRequests []*gitclient.PullRequest,
+	table *tablewriter.Table,
+) (selectedPullRequests []*gitclient.PullRequest) {
 	prIds := []string{}
 
 	for _, pr := range pullRequests {
-		prIds = append(prIds, fmt.Sprintf("%d | %s/%s", pr.Number, pr.RepositoryOwner, pr.RepositoryName))
+		prIds = append(
+			prIds,
+			fmt.Sprintf("%d | %s/%s", pr.Number, pr.RepositoryOwner, pr.RepositoryName),
+		)
 
-		data := formatTable(pr)
+		data, status := formatTable(pr)
 		if len(data) == 0 {
 			// If there is an issue with the pr, skip
 			continue
 		}
-		table = printer.SuccessStyle(table, data)
+		switch status {
+		case STATUS_SUCCESS:
+			table = printer.SuccessStyle(table, data)
+		case STATUS_WAITING:
+			table = printer.WaitingStyle(table, data)
+		case STATUS_FAILED:
+			table = printer.ErrorStyle(table, data)
+		}
 	}
 	table.Render()
 
@@ -204,14 +195,17 @@ func initTable() (table *tablewriter.Table) {
 	return
 }
 
-func statusIcon(state string) (icon string) {
+func statusIcon(state string) (icon string, status int) {
 	switch state {
 	case "SUCCESS":
-		icon = "✅"
+		icon = ""
+		status = STATUS_SUCCESS
 	case "IN_PROGRESS":
-		icon = "🟠"
+		icon = ""
+		status = STATUS_WAITING
 	case "FAILURE":
-		icon = "❌"
+		icon = "󰅙"
+		status = STATUS_FAILED
 	default:
 		icon = ""
 	}
@@ -219,27 +213,15 @@ func statusIcon(state string) (icon string) {
 	return
 }
 
-func formatTable(pr *gitclient.PullRequest) (data []string) {
+func formatTable(pr *gitclient.PullRequest) (data []string, status int) {
+	icon, status := statusIcon(pr.StatusRollup)
 	data = []string{
 		fmt.Sprintf("#%d", pr.Number),
-		fmt.Sprintf("%s %s", pr.State, statusIcon(pr.StatusRollup)),
+		fmt.Sprintf("%s %s", pr.State, icon),
 		pr.Title,
 		fmt.Sprintf("%s/%s", pr.RepositoryOwner, pr.RepositoryName),
 		printer.FormatTime(&pr.CreatedAt),
 	}
-
-	return
-}
-
-func parseOrgRepo(repo string, configPresent bool) (org, repository string) {
-	str := strings.Split(repo, "/")
-
-	if len(str) <= 1 {
-		log.Fatal("You must pass your repo name like so: organization/repository to continue.")
-	}
-
-	org = str[0]
-	repository = str[1]
 
 	return
 }
@@ -276,10 +258,30 @@ func selectPrIds(prIds []string) (*survey.MultiSelect, []string) {
 	return prompt, selectedIds
 }
 
-func commitMsg(ctx context.Context, msg string) context.Context {
-	if len(msg) != 0 {
-		return context.WithValue(ctx, "message", msg)
+func getMergeMethod() githubv4.PullRequestMergeMethod {
+	method := viper.GetString("merge-method")
+	switch method {
+	case "merge":
+		return githubv4.PullRequestMergeMethodMerge
+	case "rebase":
+		return githubv4.PullRequestMergeMethodRebase
+	case "squash":
+		return githubv4.PullRequestMergeMethodSquash
 	}
+	if method != "" {
+		log.Fatalf(
+			"Unknown merge method %s. Please use one of the following: merge, rebase, squash",
+			method,
+		)
+	}
+	return githubv4.PullRequestMergeMethodMerge
+}
 
-	return context.WithValue(ctx, "message", gitclient.DefaultApproveMsg())
+func getLabels() (labels []githubv4.String) {
+	raw_labels := viper.GetStringSlice("label")
+	labels = make([]githubv4.String, len(raw_labels))
+	for i, label := range raw_labels {
+		labels[i] = githubv4.String(label)
+	}
+	return
 }

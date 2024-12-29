@@ -24,16 +24,33 @@ func HeaderStyle(t *tablewriter.Table) *tablewriter.Table {
 
 func SuccessStyle(t *tablewriter.Table, data []string) *tablewriter.Table {
 	t.Rich(data, []tablewriter.Colors{
-		tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiCyanColor},
-		tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiGreenColor},
-		tablewriter.Colors{tablewriter.Bold},
-		tablewriter.Colors{tablewriter.Bold},
-		tablewriter.Colors{tablewriter.Bold},
+		{tablewriter.Bold, tablewriter.FgHiCyanColor},
+		{tablewriter.Bold, tablewriter.FgHiGreenColor},
+		{tablewriter.Bold},
+		{tablewriter.Bold},
+		{tablewriter.Bold},
 	})
 	return t
 }
 
 func ErrorStyle(t *tablewriter.Table, data []string) *tablewriter.Table {
-	t.Rich(data, []tablewriter.Colors{tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiRedColor}, tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiRedColor}})
+	t.Rich(
+		data,
+		[]tablewriter.Colors{
+			{tablewriter.Bold, tablewriter.FgHiCyanColor},
+			{tablewriter.Bold, tablewriter.FgHiRedColor},
+		},
+	)
+	return t
+}
+
+func WaitingStyle(t *tablewriter.Table, data []string) *tablewriter.Table {
+	t.Rich(
+		data,
+		[]tablewriter.Colors{
+			{tablewriter.Bold, tablewriter.FgHiCyanColor},
+			{tablewriter.Bold, tablewriter.FgHiYellowColor},
+		},
+	)
 	return t
 }
