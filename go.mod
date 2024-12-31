@@ -1,6 +1,6 @@
 module github.com/cian911/go-merge
 
-go 1.19
+go 1.23
 
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.6
