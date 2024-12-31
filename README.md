@@ -29,8 +29,8 @@ gomerge -h
 To install the compiled binary, you can go to the releases tab, and download the version most suitable to your environment. An example of such is below.
 
 ```bash
-wget https://github.com/Cian911/gomerge/releases/download/3.3.0/gomerge_3.3.0_Linux_x86_64.tar.gz
-sudo tar -xvf gomerge_3.3.0_Linux_x86_64.tar.gz -C /usr/local/bin/
+wget https://github.com/Cian911/gomerge/releases/download/3.4.0/gomerge_3.4.0_Linux_x86_64.tar.gz
+sudo tar -xvf gomerge_3.4.0_Linux_x86_64.tar.gz -C /usr/local/bin/
 sudo chmod +x /usr/local/bin/gomerge
 ```
 
@@ -64,12 +64,14 @@ Flags:
   -d, --delay int                    Set the value of delay, which will determine how long to wait between mergeing pull requests. Default is (6) seconds. (default 6)
   -e, --enterprise-base-url string   For Github Enterprise users, you can pass your enterprise base. Format: http(s)://[hostname]/
   -h, --help                         help for gomerge
+  -l, --label stringArray            Pass an optional list of labels to filter pull requests. (label1,label2,label3)
   -m, --merge-method string          Pass an optional merge method for the pull request (merge [default], squash, rebase).
   -r, --repo string                  Pass name of repository as argument (organization/repo).
   -s, --skip                         Pass an optional flag to skip a pull request and continue if one or more are not mergable.
   -t, --token string                 Pass your github personal access token (PAT).
 
 Use "gomerge [command] --help" for more information about a command.
+
 ```
 
 To get a list of open and active pull requests for a given repo, you can run the following command. Note, this will list all available PRs for merging, if you want to just approve a list of PRs, then add the `-a` to the below command too.
