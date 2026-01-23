@@ -22,6 +22,7 @@ var (
 	org           = ""
 	repo          = ""
 	approveOnly   = false
+	useMergeQueue = false
 	configPresent = false
 )
 
@@ -31,6 +32,13 @@ const (
 	STATUS_WAITING = 1
 	STATUS_FAILED  = 2
 )
+
+func validateMergeFlags() error {
+	if viper.GetBool("merge-queue") && viper.GetString("merge-method") != "" {
+		return fmt.Errorf("Cannot use --merge-queue with --merge-method. Merge method is determined by the repository's merge queue configuration.")
+	}
+	return nil
+}
 
 func NewCommand() (c *cobra.Command) {
 	c = &cobra.Command{
@@ -48,6 +56,11 @@ func NewCommand() (c *cobra.Command) {
 			closePr := viper.GetBool("close")
 			enterpriseUrl := viper.GetString("enterprise-base-url")
 			delay := viper.GetInt("delay")
+			useMergeQueue = viper.GetBool("merge-queue")
+
+			if err := validateMergeFlags(); err != nil {
+				log.Fatal(err)
+			}
 
 			if len(configFile) > 0 {
 				utils.ReadConfigFile(configFile)
@@ -129,8 +142,11 @@ func NewCommand() (c *cobra.Command) {
 					if pr.NeedsReview {
 						gitclient.ApprovePullRequest(ghClient, ctx, pr, skip)
 					}
-					gitclient.MergePullRequest(ghClient, ctx, pr, &mergeMethod, skip)
-
+					if useMergeQueue {
+						gitclient.EnqueuePullRequest(ghClient, ctx, pr, skip)
+					} else {
+						gitclient.MergePullRequest(ghClient, ctx, pr, &mergeMethod, skip)
+					}
 				}
 			}
 		},
@@ -244,9 +260,11 @@ func getToken(flag, config string) (str string, err error) {
 func selectPrIds(prIds []string) (*survey.MultiSelect, []string) {
 	selectedIds := []string{}
 	msg := ""
-	switch approveOnly {
-	case true:
+	switch {
+	case approveOnly:
 		msg = "Select which Pull Requests you would like to approve."
+	case useMergeQueue:
+		msg = "Select which Pull Requests you would like to add to the merge queue."
 	default:
 		msg = "Select which Pull Requests you would like to merge."
 	}

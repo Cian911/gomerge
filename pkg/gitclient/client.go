@@ -258,6 +258,35 @@ func MergePullRequest(ghClient *githubv4.Client, ctx context.Context, pr *PullRe
 
 }
 
+func EnqueuePullRequest(ghClient *githubv4.Client, ctx context.Context, pr *PullRequest, skip bool) {
+	input := githubv4.EnqueuePullRequestInput{
+		PullRequestID: pr.ID,
+	}
+
+	var m struct {
+		EnqueuePullRequest struct {
+			MergeQueueEntry struct {
+				ID       githubv4.ID
+				Position githubv4.Int
+			}
+		} `graphql:"enqueuePullRequest(input: $input)"`
+	}
+
+	err := ghClient.Mutate(ctx, &m, input, nil)
+	if err != nil {
+		if skip {
+			fmt.Printf("Could not enqueue pull request, skipping.\n")
+			return
+		}
+		log.Printf("Could not enqueue %s/%s#%d - %v\n", pr.RepositoryOwner, pr.RepositoryName, pr.Number, err)
+		return
+	}
+
+	entry := m.EnqueuePullRequest.MergeQueueEntry
+	fmt.Printf("%s/%s#%d enqueued: position %d in merge queue\n",
+		pr.RepositoryOwner, pr.RepositoryName, pr.Number, entry.Position)
+}
+
 func ClosePullRequest(ghClient *githubv4.Client, ctx context.Context, pr *PullRequest, skip bool) {
 
 	input := githubv4.ClosePullRequestInput{

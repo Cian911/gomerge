@@ -66,6 +66,7 @@ Flags:
   -h, --help                         help for gomerge
   -l, --label stringArray            Pass an optional list of labels to filter pull requests. (label1,label2,label3)
   -m, --merge-method string          Pass an optional merge method for the pull request (merge [default], squash, rebase).
+  -q, --merge-queue                  Use merge queue instead of direct merge. Requires the repository to have merge queue enabled.
   -r, --repo string                  Pass name of repository as argument (organization/repo).
   -s, --skip                         Pass an optional flag to skip a pull request and continue if one or more are not mergable.
   -t, --token string                 Pass your github personal access token (PAT).
@@ -92,6 +93,14 @@ From here, follow the instructions to select which pull request you wish to merg
 
 ```bash
 PR #3: Pull Request successfully merged.
+```
+
+##### Using Merge Queue
+
+If your repository has merge queue enabled (common with branch protection rules), direct merging may be disabled. Use the `--merge-queue` flag to add pull requests to the queue:
+
+```bash
+gomerge list -r Cian911/gomerge -t ${GITHUB_TOKEN} --merge-queue
 ```
 
 ##### Bulk Merging/Approving/Closing Pull Requests

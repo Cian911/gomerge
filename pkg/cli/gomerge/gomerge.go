@@ -33,6 +33,8 @@ func New() (c *cobra.Command) {
 		IntP("delay", "d", 6, "Set the value of delay, which will determine how long to wait between mergeing pull requests. Default is (6) seconds.")
 	c.PersistentFlags().
 		StringP("enterprise-base-url", "e", "", "For Github Enterprise users, you can pass your enterprise base. Format: http(s)://[hostname]/")
+	c.PersistentFlags().
+		BoolP("merge-queue", "q", false, "Use merge queue instead of direct merge. Requires the repository to have merge queue enabled.")
 
 	c.MarkFlagRequired("token")
 
@@ -46,6 +48,7 @@ func New() (c *cobra.Command) {
 	viper.BindPFlag("delay", c.PersistentFlags().Lookup("delay"))
 	viper.BindPFlag("close", c.PersistentFlags().Lookup("close"))
 	viper.BindPFlag("enterprise-base-url", c.PersistentFlags().Lookup("enterprise-base-url"))
+	viper.BindPFlag("merge-queue", c.PersistentFlags().Lookup("merge-queue"))
 
 	c.AddCommand(list.NewCommand())
 	c.AddCommand(version.NewCommand())

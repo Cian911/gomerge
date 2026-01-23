@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/olekukonko/tablewriter"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/cian911/go-merge/pkg/gitclient"
@@ -140,5 +141,35 @@ func TestListGetToken(t *testing.T) {
 		got, err := getToken("", "")
 		assert.Equal(t, "", got)
 		assert.Error(t, err)
+	})
+}
+
+func TestMergeQueueAndMergeMethodMutuallyExclusive(t *testing.T) {
+	t.Run("Should error when both merge-queue and merge-method are set", func(t *testing.T) {
+		viper.Reset()
+		viper.Set("merge-queue", true)
+		viper.Set("merge-method", "squash")
+
+		err := validateMergeFlags()
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "Cannot use --merge-queue with --merge-method")
+	})
+
+	t.Run("Should not error when only merge-queue is set", func(t *testing.T) {
+		viper.Reset()
+		viper.Set("merge-queue", true)
+		viper.Set("merge-method", "")
+
+		err := validateMergeFlags()
+		assert.NoError(t, err)
+	})
+
+	t.Run("Should not error when only merge-method is set", func(t *testing.T) {
+		viper.Reset()
+		viper.Set("merge-queue", false)
+		viper.Set("merge-method", "squash")
+
+		err := validateMergeFlags()
+		assert.NoError(t, err)
 	})
 }
